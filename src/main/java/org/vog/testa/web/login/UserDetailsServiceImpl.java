@@ -1,12 +1,16 @@
 package org.vog.testa.web.login;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.vog.base.model.mongo.BaseMongoMap;
+import org.vog.testa.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +28,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    @Autowired
+    private UserService userService;
+
     // 这里必须是注册用户
     @Override
     public UserDetails loadUserByUsername(String userId) {
@@ -34,29 +41,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * 根据登录帐号（已注册的）查询用户
      */
     public UserDetails loadUserByUsernameWithChkReg(String userId, boolean chkReg, String fromSrc) {
-//        Query queryObj = new Query(where("userId").is(userId));
-//        queryObj.addCriteria(where("registered").is(chkReg));
-//        if (fromSrc != null) {
-//            queryObj.addCriteria(where("from").is(fromSrc));
-//        }
-//
-//        queryObj.fields().include("userId");
-//        queryObj.fields().include("userName");
-//        queryObj.fields().include("password");
-//        queryObj.fields().include("favorite");
-//        queryObj.fields().include("role");
-//        queryObj.fields().include("status");
-//        queryObj.fields().include("registered");
-//        queryObj.fields().include("from");
-//        BaseMongoMap employee = userDao.getMongoMap(queryObj);
-//        if (employee == null) {
-//            return null;
-//        }
-//
-//        CustomerUserDetails userObj = new CustomerUserDetails(StringUtils.trimToNull((String) employee.get("userName")), (String) employee.get("password"),
-//                createGrantedAuthorities(userId, employee.getIntAttribute("role")));
+        BaseMongoMap employee = userService.getUserByAccount(userId);
+        if (employee == null) {
+            return null;
+        }
 
-        return null;
+        CustomerUserDetails userObj = new CustomerUserDetails(StringUtils.trimToNull((String) employee.get("userName")), (String) employee.get("password"),
+                createGrantedAuthorities(userId, employee.getIntAttribute("role")));
+        userObj.setStatus(employee.getIntAttribute("status"));
+        return userObj;
     }
 
     private List<GrantedAuthority> createGrantedAuthorities(String userId, int userRole) {
