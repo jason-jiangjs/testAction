@@ -1,27 +1,82 @@
 package org.vog.testa.web.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.vog.base.controller.BaseController;
+import org.vog.common.Constants;
+import org.vog.common.ErrorCode;
+import org.vog.common.util.ApiResponseUtil;
+import org.vog.common.util.StringUtil;
+import org.vog.testa.service.ProjectService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 查询表及列的一览
+ * 查询项目一览
  */
 @Controller
 public class ProjectMngController extends BaseController {
 
+    @Autowired
+    private ProjectService projectService;
+
     /**
-     * 转到项目一览画面
+     * 查询指定表的定义
      */
-    @RequestMapping(value = "/projList", method = RequestMethod.GET)
-    public ModelAndView tologin(@RequestParam Map<String, String> params) {
+    @ResponseBody
+    @RequestMapping(value = "/ajax/getProjList", method = RequestMethod.GET)
+    public Map<String, Object> getProjList(@RequestParam Map<String, String> params) {
+//        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
+//        if (userId == null || userId == 0) {
+//            logger.error("用户未登录 sessionid={}", request.getSession().getId());
+//            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
+//        }
+
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("code", 0);
+        data.put("msg", "");
+        data.put("count", projectService.countProjectList());
+        data.put("data", projectService.findProjectList(1, 10, true));
+        return data;
+    }
+
+    /**
+     * 转到指定项目的画面一览
+     */
+    @RequestMapping(value = "/page_list", method = RequestMethod.GET)
+    public ModelAndView toPageList(@RequestParam String projId) {
         ModelAndView model = new ModelAndView();
-        model.setViewName("proj_list");
+        model.setViewName("page_list");
+        model.addObject("projId", projId);
         return model;
     }
+
+    /**
+     * 查询指定表的定义
+     */
+    @ResponseBody
+    @RequestMapping(value = "/ajax/getProjPageList", method = RequestMethod.GET)
+    public Map<String, Object> getProjPageList(@RequestParam Map<String, String> params) {
+//        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
+//        if (userId == null || userId == 0) {
+//            logger.error("用户未登录 sessionid={}", request.getSession().getId());
+//            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
+//        }
+
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("code", 0);
+        data.put("msg", "");
+        data.put("count", projectService.countProjectList());
+        data.put("data", projectService.findProjectList(1, 10, true));
+        return data;
+    }
+
 }
