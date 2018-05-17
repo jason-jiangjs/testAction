@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <th:block th:replace="/layout/head"></th:block>
+</head>
+
+<body>
+<div class="layui-col-xs4 layui-col-sm12 layui-col-md2"><div>&nbsp;</div></div>
+<div class="layui-col-xs4 layui-col-sm12 layui-col-md8">
+    <div style="margin-top:60px">
+        搜索项目名称：
+        <div class="layui-inline">
+            <input class="layui-input" name="id" id="demoReload" autocomplete="off"/>
+        </div>
+        <button class="layui-btn" data-type="reload">搜索</button>
+    </div>
+
+    <table class="layui-table" lay-data="{height: 313, url:'/demo/table/user/'}" lay-filter="demoEvent">
+        <thead>
+        <tr>
+            <th lay-data="{field:'id', width:400}">项目名称</th>
+            <th lay-data="{field:'username', width:100}">开始时间</th>
+            <th lay-data="{field:'sign', width:100}">结束时间</th>
+            <th lay-data="{field:'experience'}">画面数</th>
+            <th lay-data="{field:'score'}">项目数</th>
+            <th lay-data="{field:'score'}">故障数</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+<div class="layui-col-xs4 layui-col-sm12 layui-col-md2"><div>&nbsp;</div></div>
+
+<th:block th:replace="/layout/footer"></th:block>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use('table', function() {
+        var table = layui.table;
+        table.render({
+            height: 300
+            ,url: '/api/data'
+        });
+        //监听单元格事件
+        table.on('tool(demoEvent)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'setSign'){
+                layer.prompt({
+                    formType: 2
+                    ,title: '修改 ID 为 ['+ data.id +'] 的用户签名'
+                    ,value: data.sign
+                }, function(value, index){
+                    layer.close(index);
+
+                    //这里一般是发送修改的Ajax请求
+
+                    //同步更新表格和缓存对应的值
+                    obj.update({
+                        sign: value
+                    });
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
