@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <th:block th:replace="/layout/head"></th:block>
+    <title>测试项目一览</title>
+    <script th:src="@{/js/item_list.js}"></script>
+</head>
+
+<body>
+<div style="margin:0 auto;width:1000px">
+    <h2>画面（任务项）一览</h2>
+    <p>选择项目(双击所在行)后跳转到测试项目一览</p>
+    <div style="height:600px">
+        <table id="item_table"></table>
+    </div>
+</div>
+
+<th:block th:replace="/layout/footer"></th:block>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<input type="hidden" id="pageId" th:value="${pageId}"/>
+<script>
+    var table = layui.table;
+    table.render({
+        elem: '#item_table',
+        height: 313,
+        page: true,
+        url: Ap_CtxPath + '/ajax/getPageItemList?pageId=' + $('#pageId').val(),
+        cols: [[ //表头
+            {field:'idx', width:100, event: 'rowSelected', style:'cursor: pointer;', title: 'No.'},
+            {field:'group1', width:100, event: 'rowSelected', style:'cursor: pointer;', title: '分组一', edit: 'text'},
+            {field:'group2', width:100, event: 'rowSelected', style:'cursor: pointer;', title: '分组二', edit: 'text'},
+            {field:'condition1', width:400, event: 'rowSelected', style:'cursor: pointer;', title: '测试条件1', edit: 'text'},
+            {field:'condition2', width:400, event: 'rowSelected', style:'cursor: pointer;', title: '测试条件2', edit: 'text'},
+            {field:'expectation', event: 'rowSelected', style:'cursor: pointer;', title: '期望结果'},
+            {field:'testDate', event: 'rowSelected', style:'cursor: pointer;', title: '测试日期'},
+            {field:'result', event: 'rowSelected', style:'cursor: pointer;', title: '测试结果', edit: 'text'},
+            {field:'category', event: 'rowSelected', style:'cursor: pointer;', title: '故障分类'},
+            {field:'desc', event: 'rowSelected', style:'cursor: pointer;', title: '故障描述', edit: 'text'},
+            {field:'cause', event: 'rowSelected', style:'cursor: pointer;', title: '故障原因', edit: 'text'}
+        ]]
+    });
+//    //监听单元格事件
+//    table.on('tool(demoEvent)', function(obj) {
+//        if (obj.event === 'rowSelected') {
+//            layer.load(1);
+//            var data = obj.data;
+//
+//        }
+//    });
+    //监听单元格编辑
+    table.on('edit(item_table)', function(obj){
+        var value = obj.value //得到修改后的值
+                ,data = obj.data //得到所在行所有键值
+                ,field = obj.field; //得到字段
+        layer.msg('[ID: '+ data.id +'] ' + field + ' 字段更改为：'+ value);
+    });
+</script>
+</body>
+</html>

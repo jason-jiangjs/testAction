@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.vog.base.controller.BaseController;
-import org.vog.common.Constants;
-import org.vog.common.ErrorCode;
-import org.vog.common.util.ApiResponseUtil;
 import org.vog.common.util.StringUtil;
+import org.vog.testa.service.PageService;
 import org.vog.testa.service.ProjectService;
 
 import java.util.HashMap;
@@ -26,8 +24,11 @@ public class ProjectMngController extends BaseController {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private PageService pageService;
+
     /**
-     * 查询指定表的定义
+     * 查询所有项目
      */
     @ResponseBody
     @RequestMapping(value = "/ajax/getProjList", method = RequestMethod.GET)
@@ -37,13 +38,12 @@ public class ProjectMngController extends BaseController {
 //            logger.error("用户未登录 sessionid={}", request.getSession().getId());
 //            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
 //        }
-
+        int page = StringUtil.convertToInt(params.get("page"));
+        int rows = StringUtil.convertToInt(params.get("rows"));
 
         Map<String, Object> data = new HashMap<>();
-        data.put("code", 0);
-        data.put("msg", "");
-        data.put("count", projectService.countProjectList());
-        data.put("data", projectService.findProjectList(1, 10, true));
+        data.put("total", projectService.countProjectList());
+        data.put("rows", projectService.findProjectList(page, rows, true));
         return data;
     }
 
@@ -59,7 +59,7 @@ public class ProjectMngController extends BaseController {
     }
 
     /**
-     * 查询指定表的定义
+     * 查询指定项目的所有画面
      */
     @ResponseBody
     @RequestMapping(value = "/ajax/getProjPageList", method = RequestMethod.GET)
@@ -69,13 +69,13 @@ public class ProjectMngController extends BaseController {
 //            logger.error("用户未登录 sessionid={}", request.getSession().getId());
 //            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
 //        }
-
+        int page = StringUtil.convertToInt(params.get("page"));
+        int rows = StringUtil.convertToInt(params.get("rows"));
+        long projId = StringUtil.convertToLong(params.get("projId"));
 
         Map<String, Object> data = new HashMap<>();
-        data.put("code", 0);
-        data.put("msg", "");
-        data.put("count", projectService.countProjectList());
-        data.put("data", projectService.findProjectList(1, 10, true));
+        data.put("total", pageService.countPageList(projId));
+        data.put("rows", pageService.findPageList(page, rows, projId));
         return data;
     }
 

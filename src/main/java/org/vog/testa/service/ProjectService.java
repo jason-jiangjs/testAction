@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.vog.base.model.mongo.BaseMongoMap;
 import org.vog.base.service.BaseService;
 import org.vog.testa.dao.ProjectDao;
-import org.vog.testa.dao.UserDao;
 
 import java.util.List;
 
