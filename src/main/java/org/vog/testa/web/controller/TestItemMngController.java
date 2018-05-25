@@ -32,6 +32,7 @@ public class TestItemMngController extends BaseController {
         model.setViewName("item_list");
 //        model.addObject("projId", projId);
         model.addObject("pageId", pageId);
+        model.addObject("pageName", "test");
         return model;
     }
 
