@@ -4,50 +4,50 @@
 
 // 画面项目初始化，加载数据库一览
 $(function () {
-    $.extend($.fn.datagrid.defaults.editors, {
-        textarea: {
-            init: function (container, options) {
-                var input = $('<textarea >').appendTo(container);
-                return input;
-            },
-            destroy: function (target) {
-                $(target).remove();
-            },
-            getValue: function (target) {
-                return $(target).val();
-            },
-            setValue: function (target, value) {
-                $(target).val(value);
-                // 编辑时，加载内容后，重新设置textarea高度
-                $(target).each(function () {
-                    this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;width:100%;margin-bottom:-4px;font-size:14px;overflow-y:hidden;');
-                });
-            },
-            resize: function (target, width) {
-                $(target)._outerWidth(width);
-            }
-        }
-    });
-    $.extend($.fn.datagrid.methods, {
-        editCell: function(jq,param){
-            return jq.each(function(){
-                var opts = $(this).datagrid('options');
-                var fields = $(this).datagrid('getColumnFields',true).concat($(this).datagrid('getColumnFields'));
-                for(var i=0; i<fields.length; i++){
-                    var col = $(this).datagrid('getColumnOption', fields[i]);
-                    col.editor1 = col.editor;
-                    if (fields[i] != param.field){
-                        col.editor = null;
-                    }
-                }
-                $(this).datagrid('beginEdit', param.index);
-                for(var i=0; i<fields.length; i++){
-                    var col = $(this).datagrid('getColumnOption', fields[i]);
-                    col.editor = col.editor1;
-                }
-            });
-        }
-    });
+    //$.extend($.fn.datagrid.defaults.editors, {
+    //    textarea: {
+    //        init: function (container, options) {
+    //            var input = $('<textarea >').appendTo(container);
+    //            return input;
+    //        },
+    //        destroy: function (target) {
+    //            $(target).remove();
+    //        },
+    //        getValue: function (target) {
+    //            return $(target).val();
+    //        },
+    //        setValue: function (target, value) {
+    //            $(target).val(value);
+    //            // 编辑时，加载内容后，重新设置textarea高度
+    //            $(target).each(function () {
+    //                this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;width:100%;margin-bottom:-4px;font-size:14px;overflow-y:hidden;');
+    //            });
+    //        },
+    //        resize: function (target, width) {
+    //            $(target)._outerWidth(width);
+    //        }
+    //    }
+    //});
+    //$.extend($.fn.datagrid.methods, {
+    //    editCell: function(jq,param){
+    //        return jq.each(function(){
+    //            var opts = $(this).datagrid('options');
+    //            var fields = $(this).datagrid('getColumnFields',true).concat($(this).datagrid('getColumnFields'));
+    //            for(var i=0; i<fields.length; i++){
+    //                var col = $(this).datagrid('getColumnOption', fields[i]);
+    //                col.editor1 = col.editor;
+    //                if (fields[i] != param.field){
+    //                    col.editor = null;
+    //                }
+    //            }
+    //            $(this).datagrid('beginEdit', param.index);
+    //            for(var i=0; i<fields.length; i++){
+    //                var col = $(this).datagrid('getColumnOption', fields[i]);
+    //                col.editor = col.editor1;
+    //            }
+    //        });
+    //    }
+    //});
     // 加载列定义
     var options = {
         idField: "_id",
@@ -62,24 +62,28 @@ $(function () {
     };
     options.url = Ap_CtxPath + '/ajax/getPageItemList?pageId=' + $('#pageId').val() + '&_t=' + new Date().getTime();
     options.columns = [[
-        {field:'group1',title:'分组一',width:150,editor:'textarea'},
-        {field:'group2',title:'分组二',width:150,editor:'textarea'},
-        {field:'condition1',title:'测试条件1',width:150,editor:'textarea'},
-        {field:'condition2',title:'测试条件2',width:150,editor:'textarea'},
-        {field:'expectation',title:'期望结果',width:150,editor:'textarea'},
+        {field:'group1',title:'分组一',width:150,editor:'textarea',formatter:descformatter},
+        {field:'group2',title:'分组二',width:150,editor:'textarea',formatter:descformatter},
+        {field:'condition1',title:'测试条件1',width:150,editor:'textarea',formatter:descformatter},
+        {field:'condition2',title:'测试条件2',width:150,editor:'textarea',formatter:descformatter},
+        {field:'expectation',title:'期望结果',width:150,editor:'textarea',formatter:descformatter},
         {field:'testDate',title:'测试日期',width:100},
         {field:'tester',title:'测试者',width:80},
         {field:'result',title:'测试结果',width:60},
         {field:'category',title:'故障分类',width:150},
-        {field:'desc',title:'故障描述',width:150,editor:'textarea'},
-        {field:'cause',title:'故障原因',width:150,editor:'textarea'},
+        {field:'desc',title:'故障描述',width:150,editor:'textarea',formatter:descformatter},
+        {field:'cause',title:'故障原因',width:150,editor:'textarea',formatter:descformatter},
         {field:'cfmDate',title:'确认日期',width:100},
         {field:'confirmer',title:'确认者',width:80},
-        {field:'cfmResult',title:'确认结果及描述',width:150,editor:'textarea'}
+        {field:'cfmResult',title:'确认结果及描述',width:150,editor:'textarea',formatter:descformatter}
     ]];
 
-    options.onDblClickCell = onClickRowBegEdit;
-    $('#item_table').datagrid(options);
+    //options.onDblClickCell = onClickRowBegEdit;
+    var dg = $('#item_table').datagrid(options);
+    dg.datagrid('enableCellEditing').datagrid('gotoCell', {
+        index: 0,
+        field: 'productid'
+    });
 });
 
 function onClickRowBegEdit(index, field, value) {
@@ -108,4 +112,14 @@ function setHeight() {
     c.layout('resize',{
         height: (c.height() + newHeight - oldHeight)
     });
+}
+
+// 备注一栏的显示形式
+function descformatter(value, row, index) {
+    if (value) {
+        var reg = new RegExp("\n", "g");
+        var str = value.replace(reg, "<br/>");
+        return '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word">' + str + '</div>';
+    }
+    return '';
 }
