@@ -4,50 +4,32 @@
 
 // 画面项目初始化，加载数据库一览
 $(function () {
-    //$.extend($.fn.datagrid.defaults.editors, {
-    //    textarea: {
-    //        init: function (container, options) {
-    //            var input = $('<textarea >').appendTo(container);
-    //            return input;
-    //        },
-    //        destroy: function (target) {
-    //            $(target).remove();
-    //        },
-    //        getValue: function (target) {
-    //            return $(target).val();
-    //        },
-    //        setValue: function (target, value) {
-    //            $(target).val(value);
-    //            // 编辑时，加载内容后，重新设置textarea高度
-    //            $(target).each(function () {
-    //                this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;width:100%;margin-bottom:-4px;font-size:14px;overflow-y:hidden;');
-    //            });
-    //        },
-    //        resize: function (target, width) {
-    //            $(target)._outerWidth(width);
-    //        }
-    //    }
-    //});
-    //$.extend($.fn.datagrid.methods, {
-    //    editCell: function(jq,param){
-    //        return jq.each(function(){
-    //            var opts = $(this).datagrid('options');
-    //            var fields = $(this).datagrid('getColumnFields',true).concat($(this).datagrid('getColumnFields'));
-    //            for(var i=0; i<fields.length; i++){
-    //                var col = $(this).datagrid('getColumnOption', fields[i]);
-    //                col.editor1 = col.editor;
-    //                if (fields[i] != param.field){
-    //                    col.editor = null;
-    //                }
-    //            }
-    //            $(this).datagrid('beginEdit', param.index);
-    //            for(var i=0; i<fields.length; i++){
-    //                var col = $(this).datagrid('getColumnOption', fields[i]);
-    //                col.editor = col.editor1;
-    //            }
-    //        });
-    //    }
-    //});
+
+    $.extend($.fn.datagrid.defaults.editors, {
+        textarea: {
+            init: function (container, options) {
+                var input = $('<textarea >').appendTo(container);
+                return input;
+            },
+            destroy: function (target) {
+                $(target).remove();
+            },
+            getValue: function (target) {
+                return $(target).val();
+            },
+            setValue: function (target, value) {
+                $(target).val(value);
+                // 编辑时，加载内容后，重新设置textarea高度
+                $(target).each(function () {
+                    this.setAttribute('style', 'min-height:60px;margin-bottom:-4px;font-size:14px;overflow-y:hidden;');
+                });
+            },
+            resize: function (target, width) {
+                $(target)._outerWidth(width);
+            }
+        }
+    });
+
     // 加载列定义
     var options = {
         idField: "_id",
@@ -77,49 +59,42 @@ $(function () {
         {field:'confirmer',title:'确认者',width:80},
         {field:'cfmResult',title:'确认结果及描述',width:150,editor:'textarea',formatter:descformatter}
     ]];
+    $('#item_table').datagrid(options);
 
-    //options.onDblClickCell = onClickRowBegEdit;
-    var dg = $('#item_table').datagrid(options);
-    dg.datagrid('enableCellEditing').datagrid('gotoCell', {
-        index: 0,
-        field: 'productid'
-    });
 });
-
-function onClickRowBegEdit(index, field, value) {
-
-        var gridObj = $('#item_table');
-        gridObj.datagrid('selectRow', index).datagrid('editCell', { index: index, field: field });
-        var ed = gridObj.datagrid('getEditor', { index: index, field: field });
-        if (ed && ed.target) {
-            if (field == 'desc') {
-                $(ed.target).focus();
-            } else {
-                if ($(ed.target).closest('td').find("input.textbox-text")[0]) {
-                    $(ed.target).closest('td').find("input.textbox-text")[0].focus();
-                }
-            }
-        }
-
-}
-
-function setHeight() {
-    var c = $('#cc');
-    var p = c.layout('panel','center');    // get the center panel
-    var oldHeight = p.panel('panel').outerHeight();
-    p.panel('resize', {height:'auto'});
-    var newHeight = p.panel('panel').outerHeight();
-    c.layout('resize',{
-        height: (c.height() + newHeight - oldHeight)
-    });
-}
 
 // 备注一栏的显示形式
 function descformatter(value, row, index) {
     if (value) {
         var reg = new RegExp("\n", "g");
         var str = value.replace(reg, "<br/>");
-        return '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word">' + str + '</div>';
+        var dspDiv = '';
+        if (str.indexOf("<br/>") >= 0) {
+            dspDiv = '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word;margin-top:4px;margin-bottom: 4px">' + str + '</div>';
+        } else {
+            dspDiv = '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word">' + str + '</div>';
+        }
+        return dspDiv;
     }
     return '';
+}
+
+// 开始编辑
+function enableEdit() {
+    $('#item_table').datagrid('enableCellEditing');
+}
+
+// 取消编辑
+function cancelEdit() {
+    $('#item_table').datagrid('disableCellEditing');
+    $('#item_table').datagrid('disableCellSelecting');
+    $('#item_table').datagrid('gotoCell', {
+        index: 0,
+        field: 'testDate'
+    });
+}
+
+// 保存编辑
+function saveEdit() {
+
 }

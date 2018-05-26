@@ -9,7 +9,7 @@
 
 <body>
 <div id="cc" class="easyui-layout" data-options="fit:true,border:false" style="margin:2px">
-    <div data-options="region:'north',border:false" style="height:90px;margin-left: 10px">
+    <div data-options="region:'north',border:false" style="height:50px;margin-left: 10px">
         <div style="width:100px;float: right;margin-right:15px">
             <div class="easyui-panel">
                 <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
@@ -17,18 +17,17 @@
             <div id="mm1" style="width:150px;">
                 <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${pageId}}">返回</div>
                 <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-edit'" th:href="@{'/page_list?projId=' + ${pageId}}">开始编辑</div>
+                <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
                 <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-save'" th:href="@{'/page_list?projId=' + ${pageId}}">保存</div>
+                <div data-options="iconCls:'fa fa-save'" onclick="javascript:saveEdit()">保存</div>
                 <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-undo'" th:href="@{'/page_list?projId=' + ${pageId}}">取消编辑</div>
+                <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
                 <div class="menu-sep"></div>
 
                 <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
             </div>
         </div>
         <h2><span th:text="${pageName}"></span>－测试项目一览</h2>
-        <p class="sub_title">选择项目(双击所在行)后跳转到测试项目一览</p>
     </div>
     <div data-options="region:'center',border:false" style="padding-bottom:6px">
         <table id="item_table"></table>
