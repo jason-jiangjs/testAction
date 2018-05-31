@@ -24,7 +24,7 @@ $(function () {
         {field:'staTime',title:'开始时间',width:50},
         {field:'endTime',title:'结束时间',width:50},
         {field:'pageCnt',title:'画面数',width:50},
-        {field:'itemCnt',title:'项目数',width:50},
+        {field:'itemCnt',title:'测试项目总数',width:50},
         {field:'bugCnt',title:'故障数',width:50}
     ]];
 

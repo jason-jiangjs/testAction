@@ -1,5 +1,6 @@
 package org.vog.testa.web.controller;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.vog.base.controller.BaseController;
+import org.vog.base.model.mongo.BaseMongoMap;
 import org.vog.common.util.StringUtil;
+import org.vog.testa.service.PageService;
 import org.vog.testa.service.TestItemService;
 
 import java.util.HashMap;
@@ -21,6 +24,9 @@ import java.util.Map;
 public class TestItemMngController extends BaseController {
 
     @Autowired
+    private PageService pageService;
+
+    @Autowired
     private TestItemService itemService;
 
     /**
@@ -30,7 +36,11 @@ public class TestItemMngController extends BaseController {
     public ModelAndView toPageList(@RequestParam String pageId) {
         ModelAndView model = new ModelAndView();
         model.setViewName("item_list");
-//        model.addObject("projId", projId);
+        BaseMongoMap pageObj = pageService.findPageById(NumberUtils.toLong(pageId));
+        if (pageObj != null) {
+            //
+            model.addObject("projId", pageObj.getLongAttribute("projId"));
+        }
         model.addObject("pageId", pageId);
         model.addObject("pageName", "test");
         return model;

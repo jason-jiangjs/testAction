@@ -2,12 +2,10 @@ package org.vog.testa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.vog.base.model.mongo.BaseMongoMap;
 import org.vog.base.service.BaseService;
 import org.vog.testa.dao.UserDao;
-
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 

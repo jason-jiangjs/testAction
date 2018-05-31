@@ -15,7 +15,7 @@
                 <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
             </div>
             <div id="mm1" style="width:150px;">
-                <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${pageId}}">返回</div>
+                <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${projId}}">返回</div>
                 <div class="menu-sep"></div>
                 <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
                 <div class="menu-sep"></div>
@@ -23,7 +23,6 @@
                 <div class="menu-sep"></div>
                 <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
                 <div class="menu-sep"></div>
-
                 <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
             </div>
         </div>
@@ -36,6 +35,7 @@
 
 <th:block th:replace="/layout/footer"></th:block>
 <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<input type="hidden" id="projId" th:value="${projId}"/>
 <input type="hidden" id="pageId" th:value="${pageId}"/>
 </body>
 </html>

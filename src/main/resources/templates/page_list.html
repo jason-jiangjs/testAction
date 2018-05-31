@@ -6,13 +6,57 @@
     <script th:src="@{/js/page_list.js}"></script>
 </head>
 
-<body>
-<div style="margin:0 auto;width:1000px">
+<body style="margin:0 auto;width:1360px">
+<div style="width:100px;float: right">
+    <div class="easyui-panel">
+        <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
+    </div>
+    <div id="mm1" style="width:150px;">
+        <div data-options="iconCls:'fa fa-home'" th:href="@{/home}">返回</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:editPage()">编辑</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-plus-square-o'" onclick="javascript:newPage()">新增</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-cogs'" onclick="javascript:importPage()">批量导入</div>
+        <div class="menu-sep"></div>
+        <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
+    </div>
+</div>
+<div style="margin:0 auto;width:100%">
     <h2>画面（任务项）一览</h2>
     <p class="sub_title">选择项目(双击所在行)后跳转到测试项目一览</p>
-    <div style="height:600px">
+    <div style="height:660px">
         <table id="page_grid"></table>
     </div>
+</div>
+<div id="editDlg" class="easyui-dialog" style="width:600px" data-options="buttons:'#btns1',closed:true,modal:true">
+    <div style="margin-left:60px;margin-top:20px">
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="group1" style="width:450px" data-options="label:'分组一:'"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="group2" style="width:450px" data-options="label:'分组二:'"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="pageName" style="width:450px" data-options="label:'画面名称:',required:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-numberbox" id="codeCnt" style="width:450px" data-options="label:'代码行数:',precision:0"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-numberbox" id=" diffiLevel" style="width:450px" data-options="label:'难度系数:',precision:0"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="remarks" style="width:450px;height:70px" data-options="label:'备注:',multiline:true"/>
+        </div>
+        <input type="hidden" id="pageId"/>
+    </div>
+</div>
+<div id="btns1" style="display:none">
+    <a id="delBtn" href="#" class="easyui-linkbutton" style="width:80px;margin-left:0px;float:left" onclick="deletePage()">删除</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="$('#editDlg').dialog('close')">取消</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="submitForm()">保存</a>
 </div>
 
 <th:block th:replace="/layout/footer"></th:block>

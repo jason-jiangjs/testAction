@@ -6,11 +6,23 @@
     <script th:src="@{/js/proj_list.js}"></script>
 </head>
 
-<body>
-<div style="margin:0 auto;width:1000px">
+<body style="margin:0 auto;width:1360px">
+<div style="width:100px;float: right">
+    <div class="easyui-panel">
+        <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
+    </div>
+    <div id="mm1" style="width:150px;">
+        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:editProj()">编辑</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-plus-square-o'" onclick="javascript:newProj()">新增</div>
+        <div class="menu-sep"></div>
+        <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
+    </div>
+</div>
+<div style="margin:0 auto;width:100%">
     <h2>工程项目一览</h2>
     <p class="sub_title">选择项目(双击所在行)后跳转到画面一览</p>
-    <div style="height:600px">
+    <div style="height:660px">
         <table id="proj_grid"></table>
     </div>
 </div>
