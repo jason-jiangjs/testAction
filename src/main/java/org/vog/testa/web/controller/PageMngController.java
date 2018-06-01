@@ -96,6 +96,13 @@ public class PageMngController extends BaseController {
         } else {
             params.put("codeCnt", codeCnt);
         }
+        int diffiLevel = StringUtil.convertToInt(params.get("diffiLevel"));
+        if (diffiLevel == 0) {
+            params.put("diffiLevel", null);
+        } else {
+            params.put("diffiLevel", diffiLevel);
+        }
+
         params.remove("pageId");
 
         if (pageId == 0) {

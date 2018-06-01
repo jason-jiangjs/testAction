@@ -30,6 +30,8 @@ $(function () {
         }
     });
 
+    var testRstDef = [{"value":"OK","text":"OK"},{"value":"NG","text":"NG"},{"value":"WT","text":"WT"}];
+
     // 加载列定义
     var options = {
         idField: "_id",
@@ -51,7 +53,17 @@ $(function () {
         {field:'expectation',title:'期望结果',width:150,editor:'textarea',formatter:descformatter},
         {field:'testDate',title:'测试日期',width:100},
         {field:'tester',title:'测试者',width:80},
-        {field:'result',title:'测试结果',width:60},
+        {field:'result',title:'测试结果',width:60, editor:{
+                type: 'combobox',
+                options: {
+                    data: testRstDef,
+                    valueField: "value",
+                    textField: "text",
+                    editable: false,
+                    panelHeight: 100,
+                    required: true
+                }
+            }},
         {field:'category',title:'故障分类',width:150},
         {field:'desc',title:'故障描述',width:150,editor:'textarea',formatter:descformatter},
         {field:'cause',title:'故障原因',width:150,editor:'textarea',formatter:descformatter},

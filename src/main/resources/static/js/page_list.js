@@ -62,6 +62,7 @@ function editPage() {
     $('#group1').textbox('setValue', s1.group1);
     $('#group2').textbox('setValue', s1.group2);
     $('#pageName').textbox('setValue', s1.pageName);
+    $('#diffiLevel').numberbox('setValue', s1.diffiLevel);
     $('#codeCnt').numberbox('setValue', s1.codeCnt);
     $('#remarks').textbox('setValue', s1.desc);
     $('#editDlg').dialog('open');
@@ -77,6 +78,7 @@ function newPage() {
     $('#group1').textbox('setValue', null);
     $('#group2').textbox('setValue', null);
     $('#pageName').textbox('setValue', null);
+    $('#diffiLevel').numberbox('setValue', null);
     $('#codeCnt').numberbox('setValue', null);
     $('#remarks').textbox('setValue', null);
     $('#editDlg').dialog('open');
@@ -97,6 +99,7 @@ function submitForm() {
     postData.group1 = $.trim($('#group1').textbox('getValue'));
     postData.group2 = $.trim($('#group2').textbox('getValue'));
     postData.pageName = $.trim($('#pageName').textbox('getValue'));
+    postData.diffiLevel = $.trim($('#diffiLevel').textbox('getValue'));
     postData.remarks = $.trim($('#remarks').textbox('getValue'));
     postData.codeCnt = $.trim($('#codeCnt').numberbox('getValue'));
 

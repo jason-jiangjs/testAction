@@ -45,7 +45,7 @@
             <input class="easyui-numberbox" id="codeCnt" style="width:450px" data-options="label:'代码行数:',precision:0"/>
         </div>
         <div style="margin-bottom:20px">
-            <input class="easyui-numberbox" id=" diffiLevel" style="width:450px" data-options="label:'难度系数:',precision:0"/>
+            <input class="easyui-numberbox" id="diffiLevel" style="width:450px" data-options="label:'难度系数:',precision:0"/>
         </div>
         <div style="margin-bottom:20px">
             <input class="easyui-textbox" id="remarks" style="width:450px;height:70px" data-options="label:'备注:',multiline:true"/>
@@ -59,7 +59,7 @@
     <a href="#" class="easyui-linkbutton" style="width:80px" onclick="submitForm()">保存</a>
 </div>
 
-<th:block th:replace="/layout/footer"></th:block>
+
 <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
 <input type="hidden" id="projId" th:value="${projId}"/>
 </body>

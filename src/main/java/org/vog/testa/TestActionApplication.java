@@ -5,7 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.vog.testa.web.tag.dialect.VoDialect;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "org.vog")
@@ -19,6 +21,11 @@ public class TestActionApplication extends SpringBootServletInitializer {
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(TestActionApplication.class);
+	}
+
+	@Bean
+	public VoDialect createVoDialect() {
+		return new VoDialect();
 	}
 
 }

@@ -41,59 +41,59 @@ public final class AuthorizeAttrProcessor extends AbstractStandardExpressionAttr
             final IElementTagStructureHandler structureHandler) {
 
         final String newAttributeValue = EscapedAttributeUtils.escapeAttribute(getTemplateMode(), expressionResult == null ? null : expressionResult.toString());
-        if (newAttributeValue == null || newAttributeValue.length() == 0) {
-            structureHandler.removeElement();
-            return;
-        }
-        Long dbId = StringUtil.convertToLong(newAttributeValue);
-        if (dbId < 100) {
-            structureHandler.removeElement();
-            return;
-        }
-
-        final Authentication authentication = AuthUtils.getAuthenticationObject();
-        if (authentication == null) {
-            structureHandler.removeElement();
-            return;
-        }
-        CustomerUserDetails userObj = (CustomerUserDetails) authentication.getPrincipal();
-        if (userObj == null) {
-            structureHandler.removeElement();
-            return;
-        }
-
-        ApplicationContext appCtx = SpringContextUtils.getApplicationContext(context);
-        if (appCtx == null) {
-            structureHandler.removeElement();
-            return;
-        }
-        UserService userService = appCtx.getBean(UserService.class);
-        if (userService == null) {
-            structureHandler.removeElement();
-            return;
-        }
-//        List<Map<String, Object>> roleList = userService.find(userObj.getId(), false);
-//        if (roleList == null || roleList.isEmpty()) {
+//        if (newAttributeValue == null || newAttributeValue.length() == 0) {
 //            structureHandler.removeElement();
 //            return;
 //        }
-        int userReadonly = -1;
-//        for (Map<String, Object> item : roleList) {
-//            if (dbId.equals(item.get("dbId"))) {
-//                int role = StringUtil.convertToInt(item.get("role"));
-//                if (role == 1) {
-//                    userReadonly = 1;
-//                } else if (role == 2 || role == 8 || role == 9) {
-//                    userReadonly = 0;
-//                }
-//                break;
-//            }
+//        Long dbId = StringUtil.convertToLong(newAttributeValue);
+//        if (dbId < 100) {
+//            structureHandler.removeElement();
+//            return;
 //        }
-
-        if (userReadonly == -1 || userReadonly == 1) {
-            structureHandler.removeElement();
-            return;
-        }
+//
+//        final Authentication authentication = AuthUtils.getAuthenticationObject();
+//        if (authentication == null) {
+//            structureHandler.removeElement();
+//            return;
+//        }
+//        CustomerUserDetails userObj = (CustomerUserDetails) authentication.getPrincipal();
+//        if (userObj == null) {
+//            structureHandler.removeElement();
+//            return;
+//        }
+//
+//        ApplicationContext appCtx = SpringContextUtils.getApplicationContext(context);
+//        if (appCtx == null) {
+//            structureHandler.removeElement();
+//            return;
+//        }
+//        UserService userService = appCtx.getBean(UserService.class);
+//        if (userService == null) {
+//            structureHandler.removeElement();
+//            return;
+//        }
+////        List<Map<String, Object>> roleList = userService.find(userObj.getId(), false);
+////        if (roleList == null || roleList.isEmpty()) {
+////            structureHandler.removeElement();
+////            return;
+////        }
+//        int userReadonly = -1;
+////        for (Map<String, Object> item : roleList) {
+////            if (dbId.equals(item.get("dbId"))) {
+////                int role = StringUtil.convertToInt(item.get("role"));
+////                if (role == 1) {
+////                    userReadonly = 1;
+////                } else if (role == 2 || role == 8 || role == 9) {
+////                    userReadonly = 0;
+////                }
+////                break;
+////            }
+////        }
+//
+//        if (userReadonly == -1 || userReadonly == 1) {
+//            structureHandler.removeElement();
+//            return;
+//        }
     }
 
 }
