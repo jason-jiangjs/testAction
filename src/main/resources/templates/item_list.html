@@ -7,35 +7,30 @@
     <script th:src="@{/js/item_list.js}"></script>
 </head>
 
-<body>
-<div id="cc" class="easyui-layout" data-options="fit:true,border:false" style="margin:2px">
-    <div data-options="region:'north',border:false" style="height:50px;margin-left: 10px">
-        <div style="width:100px;float: right;margin-right:15px">
-            <div class="easyui-panel">
-                <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
-            </div>
-            <div id="mm1" style="width:150px;">
-                <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${projId}}">返回</div>
-                <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
-                <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">新增测试项</div>
-                <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">删除测试项</div>
-                <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-save'" onclick="javascript:saveEdit()">保存</div>
-                <div class="menu-sep"></div>
-                <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
-                <div class="menu-sep"></div>
-                <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
-            </div>
-        </div>
-        <h2><span th:text="${pageName}"></span>－测试项目一览</h2>
+<body style="overflow-y:hidden">
+<div style="width:100px;float:right">
+    <div class="easyui-panel">
+        <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
     </div>
-    <div data-options="region:'center',border:false" style="padding-bottom:6px">
-        <table id="item_table"></table>
+    <div id="mm1" style="width:150px;">
+        <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${projId}}">返回</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">新增测试项</div>
+        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">删除测试项</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-save'" onclick="javascript:saveEdit()">保存</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
+        <div class="menu-sep"></div>
+        <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
     </div>
 </div>
-
+<div style="margin:0 auto;width:100%">
+    <h2><span th:text="${pageName}"></span>－测试项目一览</h2>
+    <table id="item_table"></table>
+</div>
 
 <!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
 <input type="hidden" id="projId" th:value="${projId}"/>

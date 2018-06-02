@@ -1,9 +1,22 @@
+html {
+   // padding:0px;
+   // margin:0px;
+}
 body {
     font-family:verdana,helvetica,arial,sans-serif;
-    padding:0px;
-    margin:0;
+   padding:0px;
+   margin:0px;
+  width: 100%;
+  height: 100%;
 }
 
-.sub_title {
-    font-size: 12px
+body div h2 {
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-bottom: 10px;
+}
+body div p {
+    font-size: 12px;
+    margin-left: 5px;
+    margin-bottom: 5px;
 }

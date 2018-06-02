@@ -8,7 +8,7 @@ $(function () {
     // 加载列定义
     var options = {
         idField: "_id",
-        fit: true,
+        fit: false,
         fitColumns: true,
         nowrap: false,
         striped: true,
@@ -33,5 +33,14 @@ $(function () {
     };
 
     $('#proj_grid').datagrid(options);
+    $('#proj_grid').datagrid('resize', {
+        height: $(window).height() - 75
+    });
+    $(window).resize(function() {
+        $('#proj_grid').datagrid('resize', {
+            width: $(window).width(),
+            height: $(window).height() - 75
+        });
+    });
 
 });

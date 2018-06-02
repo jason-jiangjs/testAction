@@ -6,8 +6,8 @@
     <script th:src="@{/js/page_list.js}"></script>
 </head>
 
-<body style="margin:0 auto;width:1360px">
-<div style="width:100px;float: right">
+<body>
+<div style="width:100px;float:right">
     <div class="easyui-panel">
         <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
     </div>
@@ -25,10 +25,8 @@
 </div>
 <div style="margin:0 auto;width:100%">
     <h2>画面（任务项）一览</h2>
-    <p class="sub_title">选择项目(双击所在行)后跳转到测试项目一览</p>
-    <div style="height:660px">
-        <table id="page_grid"></table>
-    </div>
+    <p>选择项目(双击所在行)后跳转到测试项目一览</p>
+    <table id="page_grid"></table>
 </div>
 <div id="editDlg" class="easyui-dialog" style="width:600px" data-options="buttons:'#btns1',closed:true,modal:true">
     <div style="margin-left:60px;margin-top:20px">

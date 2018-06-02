@@ -35,9 +35,9 @@ $(function () {
     // 加载列定义
     var options = {
         idField: "_id",
-        lines: true,
-        fit: true,
-        fitColumns: true,
+        rownumbers: true,
+        fit: false,
+
         nowrap: false,
         striped: true,
         singleSelect: true,
@@ -53,7 +53,7 @@ $(function () {
         {field:'expectation',title:'期望结果',width:150,editor:'textarea',formatter:descformatter},
         {field:'testDate',title:'测试日期',width:100},
         {field:'tester',title:'测试者',width:80},
-        {field:'result',title:'测试结果',width:60, editor:{
+        {field:'result',title:'结果',width:50, editor:{
                 type: 'combobox',
                 options: {
                     data: testRstDef,
@@ -72,7 +72,15 @@ $(function () {
         {field:'cfmResult',title:'确认结果及描述',width:150,editor:'textarea',formatter:descformatter}
     ]];
     $('#item_table').datagrid(options);
-
+    $('#item_table').datagrid('resize', {
+        height: $(window).height() - 50
+    });
+    $(window).resize(function() {
+        $('#item_table').datagrid('resize', {
+            width: $(window).width(),
+            height: $(window).height() - 50
+        });
+    });
 });
 
 // 备注一栏的显示形式

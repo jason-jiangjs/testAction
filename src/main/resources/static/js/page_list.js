@@ -8,8 +8,8 @@ $(function () {
     // 加载列定义
     var options = {
         idField: "_id",
-        lines: true,
-        fit: true,
+        rownumbers: true,
+        fit: false,
         fitColumns: true,
         nowrap: false,
         striped: true,
@@ -36,7 +36,15 @@ $(function () {
     };
 
     $('#page_grid').datagrid(options);
-
+    $('#page_grid').datagrid('resize', {
+        height: $(window).height() - 75
+    });
+    $(window).resize(function() {
+        $('#page_grid').datagrid('resize', {
+            width: $(window).width(),
+            height: $(window).height() - 75
+        });
+    });
 });
 
 // 编辑
