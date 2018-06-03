@@ -170,7 +170,7 @@ function deletePage() {
     });
 }
 
-// 关闭对话框,刷新用户一览(当前分页)
+// 关闭对话框,刷新一览(当前分页)
 function _endSave() {
     $('#page_grid').datagrid('reload', {});
     $('#editDlg').dialog('close');

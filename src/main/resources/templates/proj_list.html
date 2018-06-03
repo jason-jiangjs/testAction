@@ -12,9 +12,9 @@
         <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
     </div>
     <div id="mm1" style="width:150px;">
-        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:editProj()" dbd:authorize="${dbId}">编辑</div>
+        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:editProject()" dbd:authorize="${dbId}">编辑</div>
         <div class="menu-sep" dbd:authorize="${dbId}"></div>
-        <div data-options="iconCls:'fa fa-plus-square-o'" onclick="javascript:newProj()" dbd:authorize="${dbId}">新增</div>
+        <div data-options="iconCls:'fa fa-plus-square-o'" onclick="javascript:newProject()" dbd:authorize="${dbId}">新增</div>
         <div class="menu-sep"></div>
         <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
     </div>
@@ -23,6 +23,29 @@
     <h2>工程项目一览</h2>
     <p>选择项目(双击所在行)后跳转到画面一览</p>
     <table id="proj_grid"></table>
+</div>
+
+<div id="editDlg" class="easyui-dialog" style="width:600px" data-options="buttons:'#btns1',closed:true,modal:true">
+    <div style="margin-left:60px;margin-top:20px">
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="projName" style="width:450px" data-options="label:'项目名称:',required:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-datebox" id="begTime" style="width:450px" data-options="label:'开始时间:'"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-datebox" id="endTime" style="width:450px" data-options="label:'结束时间:'"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="remarks" style="width:450px;height:70px" data-options="label:'备注:',multiline:true"/>
+        </div>
+        <input type="hidden" id="projId"/>
+    </div>
+</div>
+<div id="btns1" style="display:none">
+    <a id="delBtn" href="#" class="easyui-linkbutton" style="width:80px;margin-left:0px;float:left" onclick="deleteProject()">删除</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="$('#editDlg').dialog('close')">取消</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="submitForm()">保存</a>
 </div>
 </body>
 </html>

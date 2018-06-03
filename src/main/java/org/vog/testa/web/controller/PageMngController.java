@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 查询项目一览
+ * 查询业务画面一览
  */
 @Controller
 public class PageMngController extends BaseController {
@@ -160,4 +160,5 @@ public class PageMngController extends BaseController {
         updateHisService.saveUpdateHis(userObj, projId, null, null);
         return ApiResponseUtil.success();
     }
+
 }
