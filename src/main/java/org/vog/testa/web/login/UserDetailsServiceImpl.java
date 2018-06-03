@@ -48,6 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         CustomerUserDetails userObj = new CustomerUserDetails(StringUtils.trimToNull((String) employee.get("userName")), (String) employee.get("password"),
                 createGrantedAuthorities(userId, employee.getIntAttribute("role")));
+        userObj.setId(employee.getLongAttribute("_id"));
         userObj.setStatus(employee.getIntAttribute("status"));
         return userObj;
     }
