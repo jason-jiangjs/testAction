@@ -44,6 +44,9 @@ $(function () {
         method: 'get',
         pagination: false
     };
+    options.onDblClickCell = onCheckBegEdit;
+    options.onBeforeCellEdit = onCheckBegEdit;
+
     options.url = Ap_CtxPath + '/ajax/getPageItemList?pageId=' + $('#pageId').val() + '&_t=' + new Date().getTime();
     options.columns = [[
         {field:'group1',title:'分组一',width:150,editor:'textarea',formatter:descformatter},
@@ -83,6 +86,24 @@ $(function () {
     });
 });
 
+var _curRow = null;
+var _onEdit = null;
+function onCheckBegEdit(index, field, value) {
+    console.log(index + ' ' + field + ' ' + value);
+    if (_onEdit == null || _onEdit == false) {
+        // 不在编辑状态
+        return;
+    }
+    if (field == 'testDate' || field == 'tester' || field == 'cfmDate' || field == 'confirmer') {
+        // 点击这些项目不算做行切换
+        return;
+    }
+    // 有了行切换，要保存上一条编辑结果
+
+
+
+}
+
 // 备注一栏的显示形式
 function descformatter(value, row, index) {
     if (value) {
@@ -116,5 +137,71 @@ function cancelEdit() {
 
 // 保存编辑
 function saveEdit() {
+
+}
+
+// 添加测试项
+function newItem() {
+    // 先取得当前选择行
+    var gridObj = $('#page_grid');
+    var s1 = gridObj.datagrid('getSelected');
+    if (s1 == null || s1 == undefined) {
+        layer.msg('请选择一个数据库后再操作．')
+        return;
+    }
+    var s2 = gridObj.datagrid('getRowIndex', s1._id);
+    if (s2 < 0) {
+        layer.msg('数据错误，请刷新画面后再操作．')
+        return;
+    }
+
+    $('#editDlg').dialog({
+        title: '编辑 - ' + s1.pageName
+    });
+    $('#delBtn').show();
+    $('#pageId').val(s1._id);
+    $('#group1').textbox('setValue', s1.group1);
+    $('#group2').textbox('setValue', s1.group2);
+    $('#pageName').textbox('setValue', s1.pageName);
+    $('#diffiLevel').numberbox('setValue', s1.diffiLevel);
+    $('#codeCnt').numberbox('setValue', s1.codeCnt);
+    $('#remarks').textbox('setValue', s1.desc);
+    $('#editDlg').dialog('open');
+}
+
+// 插入测试项
+function insertItem() {
+    $('#editDlg').dialog({
+        title: '新增'
+    });
+    $('#delBtn').hide();
+    $('#pageId').val(null);
+    $('#group1').textbox('setValue', null);
+    $('#group2').textbox('setValue', null);
+    $('#pageName').textbox('setValue', null);
+    $('#diffiLevel').numberbox('setValue', null);
+    $('#codeCnt').numberbox('setValue', null);
+    $('#remarks').textbox('setValue', null);
+    $('#editDlg').dialog('open');
+}
+
+// 删除测试项
+function delItem() {
+    $('#editDlg').dialog({
+        title: '新增'
+    });
+    $('#delBtn').hide();
+    $('#pageId').val(null);
+    $('#group1').textbox('setValue', null);
+    $('#group2').textbox('setValue', null);
+    $('#pageName').textbox('setValue', null);
+    $('#diffiLevel').numberbox('setValue', null);
+    $('#codeCnt').numberbox('setValue', null);
+    $('#remarks').textbox('setValue', null);
+    $('#editDlg').dialog('open');
+}
+
+// 批量导入
+function importItem() {
 
 }

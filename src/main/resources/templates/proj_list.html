@@ -6,16 +6,18 @@
     <script th:src="@{/js/proj_list.js}"></script>
 </head>
 
-<body>
+<body style="overflow-y:hidden">
 <div style="width:100px;float:right">
     <div class="easyui-panel">
         <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-more',width:'100%'">菜单</a>
     </div>
     <div id="mm1" style="width:150px;">
-        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:editProject()" dbd:authorize="${dbId}">编辑</div>
-        <div class="menu-sep" dbd:authorize="${dbId}"></div>
-        <div data-options="iconCls:'fa fa-plus-square-o'" onclick="javascript:newProject()" dbd:authorize="${dbId}">新增</div>
-        <div class="menu-sep"></div>
+        <th:block >
+            <div data-options="iconCls:'fa fa-edit'" onclick="javascript:editProject()">编辑</div>
+            <div class="menu-sep"></div>
+            <div data-options="iconCls:'fa fa-plus-square-o'" onclick="javascript:newProject()">新增</div>
+            <div class="menu-sep"></div>
+        </th:block>
         <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
     </div>
 </div>

@@ -15,15 +15,20 @@
     <div id="mm1" style="width:150px;">
         <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${projId}}">返回</div>
         <div class="menu-sep"></div>
-        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
-        <div class="menu-sep"></div>
-        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">新增测试项</div>
-        <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">删除测试项</div>
-        <div class="menu-sep"></div>
-        <div data-options="iconCls:'fa fa-save'" onclick="javascript:saveEdit()">保存</div>
-        <div class="menu-sep"></div>
-        <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
-        <div class="menu-sep"></div>
+        <th:block >
+            <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
+            <div class="menu-sep"></div>
+            <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
+            <div class="menu-sep"></div>
+            <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">添加测试项</div>
+            <div data-options="iconCls:'fa fa-edit'" onclick="javascript:insertItem()">插入测试项</div>
+            <div data-options="iconCls:'fa fa-edit'" onclick="javascript:delItem()">删除测试项</div>
+            <div class="menu-sep"></div>
+            <div data-options="iconCls:'fa fa-cogs'" onclick="javascript:importItem()">批量导入</div>
+            <div class="menu-sep"></div>
+            <div data-options="iconCls:'fa fa-save'" onclick="javascript:saveEdit()">保存</div>
+            <div class="menu-sep"></div>
+        </th:block>
         <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
     </div>
 </div>
