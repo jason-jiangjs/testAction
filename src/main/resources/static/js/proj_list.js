@@ -66,8 +66,8 @@ function editProject() {
     $('#delBtn').show();
     $('#projId').val(s1._id);
     $('#projName').textbox('setValue', s1.projName);
-    $('#begTime').numberbox('setValue', s1.staTime);
-    $('#endTime').numberbox('setValue', s1.endTime);
+    $('#staTime').datebox('setValue', s1.staTime);
+    $('#endTime').datebox('setValue', s1.endTime);
     $('#remarks').textbox('setValue', s1.desc);
     $('#editDlg').dialog('open');
 }
@@ -80,8 +80,8 @@ function newProject() {
     $('#delBtn').hide();
     $('#projId').val(null);
     $('#projName').textbox('setValue', null);
-    $('#begTime').numberbox('setValue', null);
-    $('#endTime').numberbox('setValue', null);
+    $('#staTime').datebox('setValue', null);
+    $('#endTime').datebox('setValue', null);
     $('#remarks').textbox('setValue', null);
     $('#editDlg').dialog('open');
 }
@@ -90,13 +90,11 @@ function newProject() {
 function submitForm() {
     // 不判断是否已修改，全部提交至后台
     var postData = {};
-    postData.projId = $('#projId').val();
-    postData.pageId = $('#pageId').val();
-    postData.group1 = $.trim($('#group1').textbox('getValue'));
-    postData.group2 = $.trim($('#group2').textbox('getValue'));
-    postData.pageName = $.trim($('#pageName').textbox('getValue'));
-    postData.diffiLevel = $.trim($('#diffiLevel').textbox('getValue'));
-    postData.remarks = $.trim($('#remarks').textbox('getValue'));
+    postData.projId = $.trim($('#projId').val());
+    postData.projName = $.trim($('#projName').textbox('getValue'));
+    postData.staTime = $.trim($('#staTime').datebox('getValue'));
+    postData.endTime = $.trim($('#endTime').datebox('getValue'));
+    postData.desc = $.trim($('#remarks').textbox('getValue'));
 
     // 先验证必须值
     if (postData.pageName == '') {
@@ -107,7 +105,7 @@ function submitForm() {
     var loadLy = layer.load(1);
     $.ajax({
         type: 'post',
-        url: Ap_CtxPath + '/ajax/mng/savePageInfo',
+        url: Ap_CtxPath + '/ajax/mng/saveProjInfo',
         data: JSON.stringify(postData),
         contentType: "application/json; charset=utf-8",
         success: function (data) {
@@ -125,19 +123,18 @@ function submitForm() {
 
 // 删除画面
 function deleteProject() {
-    var pageName = $.trim($('#pageName').textbox('getValue'));
+    var projName = $.trim($('#projName').textbox('getValue'));
     var postData = {};
-    postData.projId = $('#projId').val();
-    postData.pageId = $('#pageId').val();
+    postData.projId = $.trim($('#projId').val());
 
-    layer.confirm('确定要删除选定的画面［' + pageName + '］?<br>该操作不可恢复，是否确认删除?', { icon: 7,
+    layer.confirm('确定要删除选定的工程［' + projName + '］?<br>该操作不可恢复，是否确认删除?', { icon: 7,
         btn: ['确定','取消'] //按钮
     }, function(index) {
         // 提交请求到后台
         var loadLy = layer.load(1);
         $.ajax({
             type: 'post',
-            url: Ap_CtxPath + '/ajax/mng/delPage',
+            url: Ap_CtxPath + '/ajax/mng/delProj',
             data: JSON.stringify(postData),
             contentType: "application/json; charset=utf-8",
             success: function (data) {
@@ -157,8 +154,13 @@ function deleteProject() {
     });
 }
 
-// 关闭对话框,刷新用户一览(当前分页)
+// 关闭对话框,刷新画面(当前分页)
 function _endSave() {
-    $('#page_grid').datagrid('reload', {});
+    $('#proj_grid').datagrid('reload', {});
     $('#editDlg').dialog('close');
+}
+
+// 查看统计数据
+function showInfo() {
+    window.open(Ap_CtxPath + '/statistic_list?projId=' + $.trim($('#projId').val()) + '&_t=' + new Date().getTime());
 }

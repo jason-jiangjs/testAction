@@ -5,9 +5,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.vog.base.model.mongo.BaseMongoMap;
 import org.vog.base.service.BaseService;
+import org.vog.common.util.DateTimeUtil;
 import org.vog.testa.dao.TestItemDao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -16,6 +19,17 @@ public class TestItemService extends BaseService {
 
     @Autowired
     private TestItemDao itemDao;
+
+    /**
+     * 查询指定测试项目
+     */
+    public BaseMongoMap findTestItem(long itemId) {
+        Query queryObj = new Query();
+        queryObj.addCriteria(where("_id").is(itemId));
+        queryObj.addCriteria(where("deleteFlg").is(false));
+
+        return itemDao.getMongoMap(queryObj);
+    }
 
     /**
      * 查询项目一览(不分页)
@@ -38,4 +52,14 @@ public class TestItemService extends BaseService {
         return itemDao.countList(queryObj);
     }
 
+    /**
+     * 开始编辑表
+     */
+    public void startEditTable(long userId, long itemId) {
+        Map<String, Object> infoMap = new HashMap<>();
+        infoMap.put("currEditorId", userId);
+        infoMap.put("startEditTime", DateTimeUtil.getNowTime());
+
+        itemDao.updateObject(itemId, infoMap, false);
+    }
 }

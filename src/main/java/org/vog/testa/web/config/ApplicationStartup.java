@@ -8,8 +8,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.vog.base.dao.mongo.BaseMongoDao;
 import org.vog.common.SystemProperty;
 import org.vog.testa.dao.ComConfigDao;
+import org.vog.testa.dao.UserDao;
 
 
 import java.io.File;
@@ -28,18 +30,16 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
         ApplicationContext _applicationContext = event.getApplicationContext();
         SystemProperty.initComConfig(_applicationContext);
 
-        // 导入初始数据（没有时才导入），表：col_head_define/com_config/com_sequence/user
-        ComConfigDao configDao = _applicationContext.getBean(ComConfigDao.class);
-        List<Map> propList = configDao.getProperties();
-        if (propList == null || propList.isEmpty()) {
-            copyInitData("col_head_define", configDao);
-            copyInitData("com_sequence", configDao);
-            copyInitData("com_config", configDao);
-            copyInitData("user", configDao);
+        // 导入初始数据（没有时才导入），表：com_config/com_sequence/user
+        UserDao userDao = _applicationContext.getBean(UserDao.class);
+        if (userDao.countList(null) == 0) {
+            copyInitData("com_sequence", userDao);
+            copyInitData("com_config", userDao);
+            copyInitData("user", userDao);
         }
     }
 
-    private void copyInitData(String tblName, ComConfigDao configDao) {
+    private void copyInitData(String tblName, BaseMongoDao userDao) {
         // 导入初始数据（没有时才导入），表：col_head_define/com_config/com_sequence/user
         String path = getClass().getClassLoader().getResource("static/data/" + tblName + ".json").toString();
         if (path.contains(":")) {
@@ -56,7 +56,7 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
             }
             input.close();
             if (objList.size() > 0) {
-                configDao.insertObject(objList, tblName);
+                userDao.insertObject(objList, tblName);
             }
         } catch (Exception e) {
             e.printStackTrace();

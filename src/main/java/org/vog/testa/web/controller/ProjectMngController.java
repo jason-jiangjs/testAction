@@ -69,6 +69,10 @@ public class ProjectMngController extends BaseController {
             return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请填写完整再保存。");
         }
         BaseMongoMap dbObj = projectService.findProjectByName(projName);
+        if (dbObj != null) {
+            logger.warn("saveProjInfo 项目名称重复 projId={} projName={}", projId, projName);
+            return ApiResponseUtil.error(ErrorCode.E5001, "该项目名称重复");
+        }
 
         if (projId == 0) {
             // 新增
@@ -82,10 +86,7 @@ public class ProjectMngController extends BaseController {
             projectService.saveProject(projId, params);
         } else {
             // 修改
-            if (dbObj != null && !projId.equals(dbObj.getLongAttribute("_id"))) {
-                logger.warn("saveProjInfo 项目名称重复 projId={} projName={}", projId, projName);
-                return ApiResponseUtil.error(ErrorCode.E5001, "该项目名称重复");
-            }
+
             params.put("modifier", adminId);
             params.put("modifiedTime", DateTimeUtil.getNowTime());
             projectService.saveProject(projId, params);

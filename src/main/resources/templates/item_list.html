@@ -3,7 +3,8 @@
 <head>
     <th:block th:replace="/layout/head"></th:block>
     <title>测试项目一览</title>
-    <script th:src="@{/lib/easyui/datagrid-cellediting.js}"></script>
+    <script th:src="@{/lib/easyui/datagrid-dnd.js}"></script>
+    <script th:src="@{/lib/jQuery.md5.js}"></script>
     <script th:src="@{/js/item_list.js}"></script>
 </head>
 
@@ -16,10 +17,6 @@
         <div data-options="iconCls:'fa fa-home'" th:href="@{'/page_list?projId=' + ${projId}}">返回</div>
         <div class="menu-sep"></div>
         <th:block >
-            <div data-options="iconCls:'fa fa-edit'" onclick="javascript:enableEdit()">开始编辑</div>
-            <div class="menu-sep"></div>
-            <div data-options="iconCls:'fa fa-undo'" onclick="javascript:cancelEdit()">取消编辑</div>
-            <div class="menu-sep"></div>
             <div data-options="iconCls:'fa fa-edit'" onclick="javascript:newItem()">添加测试项</div>
             <div data-options="iconCls:'fa fa-edit'" onclick="javascript:insertItem()">插入测试项</div>
             <div data-options="iconCls:'fa fa-edit'" onclick="javascript:delItem()">删除测试项</div>
@@ -29,7 +26,7 @@
             <div data-options="iconCls:'fa fa-save'" onclick="javascript:saveEdit()">保存</div>
             <div class="menu-sep"></div>
         </th:block>
-        <div data-options="href:'logout',iconCls:'fa fa-sign-out'">退出</div>
+        <div data-options="iconCls:'fa fa-sign-out'" th:href="@{/logout}">退出</div>
     </div>
 </div>
 <div style="margin:0 auto;width:100%">
@@ -37,8 +34,64 @@
     <table id="item_table"></table>
 </div>
 
-<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<div id="editDlg1" class="easyui-dialog" style="width:580px;top:100px" data-options="buttons:'#btns1',closed:true,modal:true">
+    <div style="margin-left:30px;margin-top:20px">
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="group1" style="width:500px;height:40px" data-options="label:'分组一:',multiline:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="group2" style="width:500px;height:40px" data-options="label:'分组二:',multiline:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="condition1" style="width:500px;height:70px" data-options="label:'测试条件1:',multiline:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="condition2" style="width:500px;height:70px" data-options="label:'测试条件2:',multiline:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="expectation" style="width:500px;height:70px" data-options="label:'期望结果:',multiline:true"/>
+        </div>
+    </div>
+</div>
+<div id="btns1" style="display:none">
+    <a href="#" class="easyui-linkbutton" style="width:80px;float:left" onclick="$('#editDlg1').dialog('close')">取消</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="submitForm()">保存</a>
+</div>
+<div id="editDlg2" class="easyui-dialog" style="width:600px;top:120px" data-options="buttons:'#btns2',closed:true,modal:true">
+    <div style="margin-left:60px;margin-top:20px">
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="result" style="width:450px" data-options="label:'测试结果:'"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-numberbox" id="category" style="width:450px" data-options="label:'故障分类:'"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="desc" style="width:450px;height:70px" data-options="label:'故障描述:',multiline:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="cause" style="width:450px;height:70px" data-options="label:'故障原因:',multiline:true"/>
+        </div>
+    </div>
+</div>
+<div id="btns2" style="display:none">
+    <a href="#" class="easyui-linkbutton" style="width:80px;float:left" onclick="$('#editDlg2').dialog('close')">取消</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="submitForm()">保存</a>
+</div>
+<div id="editDlg3" class="easyui-dialog" style="width:600px;top:200px" data-options="buttons:'#btns3',closed:true,modal:true">
+    <div style="margin-left:60px;margin-top:20px">
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="cfmResult" style="width:450px;height:70px" data-options="label:'确认结果及描述:',multiline:true"/>
+        </div>
+    </div>
+</div>
+<div id="btns3" style="display:none">
+    <a href="#" class="easyui-linkbutton" style="width:80px;float:left" onclick="$('#editDlg3').dialog('close')">取消</a>
+    <a href="#" class="easyui-linkbutton" style="width:80px" onclick="submitForm()">保存</a>
+</div>
+
+<input type="hidden" id="editable" th:value="${editable}"/>
 <input type="hidden" id="projId" th:value="${projId}"/>
 <input type="hidden" id="pageId" th:value="${pageId}"/>
+<input type="hidden" id="itemId"/>
 </body>
 </html>
