@@ -77,7 +77,7 @@ function onCheckBegEdit(index, field, value) {
         return;
     }
 
-    var editable = false;
+    editable = false;
     var errMsg = null;
     var loadLy = layer.load(1);
     var last_upd = $.trim(s1.modifiedTime);
@@ -108,18 +108,23 @@ function onCheckBegEdit(index, field, value) {
         return false;
     }
 
-    _currRowIdxMD5 = $.md5($.trim(oldObj.group1) + '||' + $.trim(oldObj.group2) + '||' + $.trim(oldObj.condition1) + '||' + $.trim(oldObj.condition2) + '||' + $.trim(oldObj.expectation)
-        + '||' + $.trim(oldObj.result) + '||' + $.trim(oldObj.category) + '||' + $.trim(oldObj.desc) + '||' + $.trim(oldObj.cause) + '||' + $.trim(oldObj.cfmResult));
+    // _currRowIdxMD5 = $.md5($.trim(oldObj.group1) + '||' + $.trim(oldObj.group2) + '||' + $.trim(oldObj.condition1) + '||' + $.trim(oldObj.condition2) + '||' + $.trim(oldObj.expectation)
+    //     + '||' + $.trim(oldObj.result) + '||' + $.trim(oldObj.category) + '||' + $.trim(oldObj.desc) + '||' + $.trim(oldObj.cause) + '||' + $.trim(oldObj.cfmResult));
 
     // 双击不同列，弹出不同窗口
     if (field == 'group1' || field == 'group2' || field == 'condition1' || field == 'condition2' || field == 'expectation') {
         $('#editDlg1').dialog({
-            title: '新增',
-            onBeforeClose: function(){
-                alert('loaded successfully');
+            title: '测试条件',
+            onBeforeClose: function() {
+                return _cfmEndEdit(s1._id, '#editDlg1');
             }
         });
-
+        $('#itemId').val(s1._id);
+        $('#group1').textbox('setValue', s1.group1);
+        $('#group2').textbox('setValue', s1.group2);
+        $('#condition1').textbox('setValue', s1.condition1);
+        $('#condition2').textbox('setValue', s1.condition2);
+        $('#expectation').textbox('setValue', s1.expectation);
         $('#editDlg1').dialog('open');
         return;
     }
@@ -130,12 +135,18 @@ function onCheckBegEdit(index, field, value) {
         }
 
         $('#editDlg2').dialog({
-            title: '新增',
-            onBeforeClose: function(){
-                alert('loaded successfully');
+            title: '测试结果',
+            onBeforeClose: function() {
+                return _cfmEndEdit(s1._id, '#editDlg2');
             }
         });
-
+        $('#itemId').val(s1._id);
+        $('#testDate').textbox('setValue', s1.testDate);
+        $('#tester').textbox('setValue', s1.tester);
+        $('#result').textbox('setValue', s1.result);
+        $('#category').textbox('setValue', s1.category);
+        $('#desc').textbox('setValue', s1.desc);
+        $('#cause').textbox('setValue', s1.cause);
         $('#editDlg2').dialog('open');
         return;
     }
@@ -146,12 +157,15 @@ function onCheckBegEdit(index, field, value) {
         }
 
         $('#editDlg3').dialog({
-            title: '新增',
-            onBeforeClose: function(){
-                alert('loaded successfully');
+            title: '结果确认',
+            onBeforeClose: function() {
+                return _cfmEndEdit(s1._id, '#editDlg3');
             }
         });
-
+        $('#itemId').val(s1._id);
+        $('#cfmDate').textbox('setValue', s1.cfmDate);
+        $('#confirmer').textbox('setValue', s1.confirmer);
+        $('#cfmResult').textbox('setValue', s1.cfmResult);
         $('#editDlg3').dialog('open');
         return;
     }
@@ -169,18 +183,29 @@ function _checkItemMD5(oldObj, newObj) {
     return oldMD5 == newMD5;
 }
 
+
+// 确认是否结束编辑
+function _cfmEndEdit(itemId, dlgId) {
+
+
+    var rst = confirm('确定要结束编辑?\n不保存当前修改内容，该操作不可恢复，是否确认结束?');
+    if (rst == true) {
+        // 提交到后台，取消编辑状态
+        // $(dlgId).dialog('close');
+
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
 // 备注一栏的显示形式
 function descformatter(value, row, index) {
     if (value) {
         var reg = new RegExp("\n", "g");
         var str = value.replace(reg, "<br/>");
-        var dspDiv = '';
-        if (str.indexOf("<br/>") >= 0) {
-            dspDiv = '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word;margin-top:4px;margin-bottom: 4px">' + str + '</div>';
-        } else {
-            dspDiv = '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word">' + str + '</div>';
-        }
-        return dspDiv;
+        return '<div style="width:100%;display:block;word-break: break-all;word-wrap: break-word;margin-top:5px;margin-bottom:5px">' + str + '</div>';
     }
     return '';
 }
@@ -240,4 +265,110 @@ function delItem() {
 // 已有数据时暂不支持批量导入
 function importItem() {
 
+}
+
+// 提交修改(保存)
+function submitForm1() {
+    // 不判断是否已修改，全部提交至后台
+    var postData = {};
+    postData.itemId = $.trim($('#itemId').val());
+    postData.group1 = $.trim($('#group1').textbox('getValue'));
+    postData.group2 = $.trim($('#group2').textbox('getValue'));
+    postData.condition1 = $.trim($('#condition1').textbox('getValue'));
+    postData.condition2 = $.trim($('#condition2').textbox('getValue'));
+    postData.expectation = $.trim($('#expectation').textbox('getValue'));
+
+    // 先验证必须值
+    if (postData.expectation == '' || (postData.condition1 == '' && postData.condition2 == '')) {
+        layer.msg("必须输入测试条件和期望结果！");
+        return;
+    }
+
+    var loadLy = layer.load(1);
+    $.ajax({
+        type: 'post',
+        url: Ap_CtxPath + '/ajax/saveCondition',
+        data: JSON.stringify(postData),
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            layer.close(loadLy);
+            if (data.code == 0) {
+                setTimeout("_endSave('#editDlg1')", 1000);
+                layer.msg('保存成功，将关闭对话框．', {time: 1000});
+            } else {
+                layer.msg(data.msg + ' code=' + data.code);
+            }
+        }
+    });
+}
+
+// 提交修改(保存)
+function submitForm2() {
+    // 不判断是否已修改，全部提交至后台
+    var postData = {};
+    postData.itemId = $.trim($('#itemId').val());
+    postData.result = $.trim($('#result').textbox('getValue'));
+    postData.category = $.trim($('#category').textbox('getValue'));
+    postData.desc = $.trim($('#desc').textbox('getValue'));
+    postData.cause = $.trim($('#cause').textbox('getValue'));
+
+    // 先验证必须值
+    if (postData.result == '' || postData.category == '' || postData.desc == '') {
+        layer.msg("必须输入故障现象！");
+        return;
+    }
+
+    var loadLy = layer.load(1);
+    $.ajax({
+        type: 'post',
+        url: Ap_CtxPath + '/ajax/saveTestRsult',
+        data: JSON.stringify(postData),
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            layer.close(loadLy);
+            if (data.code == 0) {
+                layer.msg('保存成功，将关闭对话框．', {time: 1000});
+                setTimeout("_endSave('#editDlg2')", 1000);
+            } else {
+                layer.msg(data.msg + ' code=' + data.code);
+            }
+        }
+    });
+}
+
+// 提交修改(保存)
+function submitForm3() {
+    // 不判断是否已修改，全部提交至后台
+    var postData = {};
+    postData.itemId = $.trim($('#itemId').val());
+    postData.cfmResult = $.trim($('#cfmResult').textbox('getValue'));
+
+    // 先验证必须值
+    if (postData.cfmResult == '') {
+        layer.msg("必须输入确认结果！");
+        return;
+    }
+
+    var loadLy = layer.load(1);
+    $.ajax({
+        type: 'post',
+        url: Ap_CtxPath + '/ajax/saveConfirmRsult',
+        data: JSON.stringify(postData),
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            layer.close(loadLy);
+            if (data.code == 0) {
+                layer.msg('保存成功，将关闭对话框．');
+                setTimeout("_endSave('#editDlg3')", 1000);
+            } else {
+                layer.msg(data.msg + ' code=' + data.code);
+            }
+        }
+    });
+}
+
+// 关闭对话框,刷新一览(当前分页)
+function _endSave(dlgId) {
+    $('#item_table').datagrid('reload', {});
+    $(dlgId).dialog('close', true);
 }

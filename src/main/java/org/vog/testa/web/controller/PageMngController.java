@@ -44,6 +44,8 @@ public class PageMngController extends BaseController {
         ModelAndView model = new ModelAndView();
         model.setViewName("page_list");
         model.addObject("projId", projId);
+
+        request.getSession().setAttribute("_projId", StringUtil.convertToLong(projId));
         return model;
     }
 
@@ -70,10 +72,6 @@ public class PageMngController extends BaseController {
     @PostMapping("/ajax/mng/savePageInfo")
     public Map<String, Object> savePageInfo(@RequestBody Map<String, Object> params) {
         Long adminId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-        if (adminId == null) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
 
         Long projId = StringUtil.convertToLong(params.get("projId"));
         if (projId == 0) {
@@ -141,15 +139,8 @@ public class PageMngController extends BaseController {
             return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
         }
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-        if (userId == null || userId == 0) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
         CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
-        if (userObj == null) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
+
 
 //        if (userObj.getIntAttribute("role") != 9) {
 //            logger.warn("deletePage 用户无权限 userId={}", userId);

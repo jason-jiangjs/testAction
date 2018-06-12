@@ -57,10 +57,6 @@ public class ProjectMngController extends BaseController {
     @PostMapping("/ajax/mng/saveProjInfo")
     public Map<String, Object> saveProjInfo(@RequestBody Map<String, Object> params) {
         Long adminId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-        if (adminId == null) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
 
         Long projId = StringUtil.convertToLong(params.get("projId"));
         String projName = StringUtils.trimToNull((String) params.get("projName"));
@@ -106,15 +102,7 @@ public class ProjectMngController extends BaseController {
             return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
         }
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-        if (userId == null || userId == 0) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
         CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
-        if (userObj == null) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
 
 //        if (userObj.getIntAttribute("role") != 9) {
 //            logger.warn("deletePage 用户无权限 userId={}", userId);

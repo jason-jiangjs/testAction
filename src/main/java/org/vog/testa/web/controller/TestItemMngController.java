@@ -4,10 +4,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.vog.base.controller.BaseController;
 import org.vog.base.model.mongo.BaseMongoMap;
@@ -17,6 +14,7 @@ import org.vog.common.util.ApiResponseUtil;
 import org.vog.common.util.StringUtil;
 import org.vog.testa.service.PageService;
 import org.vog.testa.service.TestItemService;
+import org.vog.testa.service.UpdateHisService;
 import org.vog.testa.service.UserService;
 import org.vog.testa.web.login.CustomerUserDetails;
 
@@ -37,6 +35,9 @@ public class TestItemMngController extends BaseController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UpdateHisService updateHisService;
 
     /**
      * 转到测试项目一览画面
@@ -86,10 +87,6 @@ public class TestItemMngController extends BaseController {
     @RequestMapping(value = "/ajax/chkItemEditable", method = RequestMethod.POST)
     public Map<String, Object> chkItemEditable(@RequestParam Map<String, String> params) {
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-        if (userId == null || userId == 0) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
 
         long itemId = StringUtil.convertToLong(params.get("itemId"));
         if (itemId == 0) {
@@ -141,6 +138,99 @@ public class TestItemMngController extends BaseController {
 
         // 已在编辑状态
         return ApiResponseUtil.error(1, userMap.getStringAttribute("userName") + "(" + userMap.getStringAttribute("userId") + ") 正在编辑该表，<br/>去催催吧。" );
+    }
+
+    /**
+     * 保存测试条件
+     */
+    @ResponseBody
+    @PostMapping("/ajax/saveCondition")
+    public Map<String, Object> saveCondition(@RequestBody Map<String, Object> params) {
+        Long projId = (Long) request.getSession().getAttribute("_projId");
+        if (projId == 0) {
+            logger.warn("deleteProj 缺少参数 params={}", params.toString());
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
+        }
+        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
+        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
+
+//        if (userObj.getIntAttribute("role") != 9) {
+//            logger.warn("deletePage 用户无权限 userId={}", userId);
+//            return ApiResponseUtil.error(ErrorCode.E5001, "该登录用户无删除权限 userId={}", userId);
+//        }
+
+        // 获取item id，新增项目时也会有id
+        long itemId = StringUtil.convertToLong(params.get("itemId"));
+        if (itemId == 0) {
+            logger.warn("chkItemEditable 缺少参数itemId");
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数itemId");
+        }
+        BaseMongoMap itemMap = itemService.findTestItem(itemId);
+        if (itemMap == null || itemMap.isEmpty()) {
+            // 表不存在
+            logger.warn("chkItemEditable 测试项不存在 itemId={}, userId={}", itemId, userId);
+            return ApiResponseUtil.error(ErrorCode.E5101, "指定的测试项不存在 itemId={}", itemId);
+        }
+
+        // 然后检查是否被编辑过（不允许同时打开编辑）
+
+
+        params.remove("itemId");
+        itemService.saveTestItem(itemId, params);
+        updateHisService.saveItemUpdateHis(userObj, "保存测试条件", projId, itemId, params);
+        return ApiResponseUtil.success();
+    }
+
+    /**
+     * 保存测试结果
+     */
+    @ResponseBody
+    @PostMapping("/ajax/saveTestRsult")
+    public Map<String, Object> saveTestRsult(@RequestBody Map<String, Object> params) {
+        Long projId = StringUtil.convertToLong(params.get("projId"));
+        if (projId == 0) {
+            logger.warn("deleteProj 缺少参数 params={}", params.toString());
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
+        }
+        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
+
+        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
+
+
+//        if (userObj.getIntAttribute("role") != 9) {
+//            logger.warn("deletePage 用户无权限 userId={}", userId);
+//            return ApiResponseUtil.error(ErrorCode.E5001, "该登录用户无删除权限 userId={}", userId);
+//        }
+
+//        projectService.removeProject(userId, projId);
+//        updateHisService.saveUpdateHis(userObj, projId, null, null);
+        return ApiResponseUtil.success();
+    }
+
+    /**
+     * 保存确认结果
+     */
+    @ResponseBody
+    @PostMapping("/ajax/saveConfirmRsult")
+    public Map<String, Object> saveConfirmRsult(@RequestBody Map<String, Object> params) {
+        Long projId = StringUtil.convertToLong(params.get("projId"));
+        if (projId == 0) {
+            logger.warn("deleteProj 缺少参数 params={}", params.toString());
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
+        }
+        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
+
+        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
+
+
+//        if (userObj.getIntAttribute("role") != 9) {
+//            logger.warn("deletePage 用户无权限 userId={}", userId);
+//            return ApiResponseUtil.error(ErrorCode.E5001, "该登录用户无删除权限 userId={}", userId);
+//        }
+
+//        projectService.removeProject(userId, projId);
+//        updateHisService.saveUpdateHis(userObj, projId, null, null);
+        return ApiResponseUtil.success();
     }
 
 }

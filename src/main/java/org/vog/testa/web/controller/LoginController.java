@@ -60,10 +60,6 @@ public class LoginController extends BaseController {
     @RequestMapping(value = "/ajax/savePasswd", method = RequestMethod.POST)
     public Map<String, Object> savePasswd(@RequestBody Map<String, Object> params) {
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-        if (userId == null || userId == 0) {
-            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-        }
 
         String oldPasswd = StringUtils.trimToNull((String) params.get("oldPasswd"));
         String newPasswd = StringUtils.trimToNull((String) params.get("newPasswd"));
@@ -93,10 +89,6 @@ public class LoginController extends BaseController {
     @RequestMapping(value = "/ajax/setDefaultDbEnv", method = RequestMethod.POST)
     public Map<String, Object> setDefaultDbEnv(@RequestBody Map<String, Object> params) {
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
-//        if (userId == null || userId == 0) {
-//            logger.error("用户未登录 sessionid={}", request.getSession().getId());
-//            return ApiResponseUtil.error(ErrorCode.S9004, "用户未登录");
-//        }
 //        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
 //
 //        int checkFlg = StringUtil.convertToInt(params.get("checkFlg"));

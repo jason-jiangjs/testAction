@@ -54,5 +54,19 @@ public class UpdateHisService extends BaseService {
         updateHisDao.insertObject(data);
     }
 
+    /**
+     * 保存操作历史
+     */
+    public void saveItemUpdateHis(CustomerUserDetails userObj, String hisType, long projId, long itemId, Map<String, Object> params) {
+        DBObject data = new BasicDBObject();
+        data.put("projId", projId);
+        data.put("itemId", itemId);
+        data.put("contentAft", JacksonUtil.bean2Json(params));
+        data.put("type", hisType);
+        data.put("userId", userObj.getId());
+        data.put("userName", userObj.getUsername());
+        data.put("modifiedTime", DateTimeUtil.getNowTime());
+        updateHisDao.insertObject(data);
+    }
 
 }

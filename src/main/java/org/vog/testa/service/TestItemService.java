@@ -20,6 +20,9 @@ public class TestItemService extends BaseService {
     @Autowired
     private TestItemDao itemDao;
 
+    @Autowired
+    private ComSequenceService sequenceService;
+
     /**
      * 查询指定测试项目
      */
@@ -61,5 +64,12 @@ public class TestItemService extends BaseService {
         infoMap.put("startEditTime", DateTimeUtil.getNowTime());
 
         itemDao.updateObject(itemId, infoMap, false);
+    }
+
+    /**
+     * 保存项目
+     */
+    public void saveTestItem(Long itemId, Map<String, Object> params) {
+        itemDao.updateObject(itemId, params, false);
     }
 }
