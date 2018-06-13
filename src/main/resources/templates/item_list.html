@@ -60,7 +60,17 @@
 <div id="editDlg2" class="easyui-dialog" style="width:600px;top:120px" data-options="buttons:'#btns2',closed:true,modal:true">
     <div style="margin-left:60px;margin-top:20px">
         <div style="margin-bottom:20px">
-            <input class="easyui-textbox" id="result" style="width:450px" data-options="label:'测试结果:'"/>
+            <input class="easyui-textbox" id="testDate" style="width:450px" data-options="label:'测试日期:',readonly:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="tester" style="width:450px" data-options="label:'测试者:',readonly:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <select id="result" class="easyui-combobox" name="result" style="width:450px" data-options="label:'测试结果:',panelHeight:100">
+                <option value="OK">OK</option>
+                <option value="NG">NG</option>
+                <option value="WT">WT</option>
+            </select>
         </div>
         <div style="margin-bottom:20px">
             <input class="easyui-numberbox" id="category" style="width:450px" data-options="label:'故障分类:'"/>
@@ -80,7 +90,13 @@
 <div id="editDlg3" class="easyui-dialog" style="width:600px;top:200px" data-options="buttons:'#btns3',closed:true,modal:true">
     <div style="margin-left:60px;margin-top:20px">
         <div style="margin-bottom:20px">
-            <input class="easyui-textbox" id="cfmResult" style="width:450px;height:70px" data-options="label:'确认结果及描述:',multiline:true"/>
+            <input class="easyui-textbox" id="cfmDate" style="width:450px" data-options="label:'确认日期:',readonly:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="confirmer" style="width:450px" data-options="label:'确认者:',readonly:true"/>
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="cfmResult" style="width:450px;height:70px" data-options="label:'确认结果:',multiline:true"/>
         </div>
     </div>
 </div>

@@ -11,6 +11,7 @@ import org.vog.base.model.mongo.BaseMongoMap;
 import org.vog.common.Constants;
 import org.vog.common.ErrorCode;
 import org.vog.common.util.ApiResponseUtil;
+import org.vog.common.util.DateTimeUtil;
 import org.vog.common.util.StringUtil;
 import org.vog.testa.service.PageService;
 import org.vog.testa.service.TestItemService;
@@ -122,7 +123,7 @@ public class TestItemMngController extends BaseController {
                 }
             }
 
-            itemService.startEditTable(userId, itemId);
+            itemService.setEditStatus(itemId, userId, DateTimeUtil.getNowTime());
             return ApiResponseUtil.success();
         }
 
@@ -144,8 +145,8 @@ public class TestItemMngController extends BaseController {
      * 保存测试条件
      */
     @ResponseBody
-    @PostMapping("/ajax/saveCondition")
-    public Map<String, Object> saveCondition(@RequestBody Map<String, Object> params) {
+    @PostMapping("/ajax/saveTestItem")
+    public Map<String, Object> saveTestItem(@RequestBody Map<String, Object> params) {
         Long projId = (Long) request.getSession().getAttribute("_projId");
         if (projId == 0) {
             logger.warn("deleteProj 缺少参数 params={}", params.toString());
@@ -166,7 +167,7 @@ public class TestItemMngController extends BaseController {
             return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数itemId");
         }
         BaseMongoMap itemMap = itemService.findTestItem(itemId);
-        if (itemMap == null || itemMap.isEmpty()) {
+        if (itemMap == null) {
             // 表不存在
             logger.warn("chkItemEditable 测试项不存在 itemId={}, userId={}", itemId, userId);
             return ApiResponseUtil.error(ErrorCode.E5101, "指定的测试项不存在 itemId={}", itemId);
@@ -174,62 +175,66 @@ public class TestItemMngController extends BaseController {
 
         // 然后检查是否被编辑过（不允许同时打开编辑）
 
+        // 其他参数
+        String itemType = (String) params.get("itemType");
+        if (itemType.equals("saveTestResult")) {
+            if (itemMap.getStringAttribute("testDate") == null) {
+                params.put("testDate", DateTimeUtil.getNow(DateTimeUtil.DEFAULT_DATE_FORMAT));
+            }
+            if (itemMap.getStringAttribute("tester") == null) {
+                params.put("tester", userObj.getUsername());
+            }
+        }
+        if (itemType.equals("saveConfirmResult")) {
+            if (itemMap.getStringAttribute("cfmDate") == null) {
+                params.put("cfmDate", DateTimeUtil.getNow(DateTimeUtil.DEFAULT_DATE_FORMAT));
+            }
+            if (itemMap.getStringAttribute("confirmer") == null) {
+                params.put("confirmer", userObj.getUsername());
+            }
+        }
 
         params.remove("itemId");
+        params.remove("itemType");
+        itemService.setEditStatus(itemId, null, null);
         itemService.saveTestItem(itemId, params);
         updateHisService.saveItemUpdateHis(userObj, "保存测试条件", projId, itemId, params);
         return ApiResponseUtil.success();
     }
 
     /**
-     * 保存测试结果
+     * 结束编辑状态, 不保存数据！！！
      */
     @ResponseBody
-    @PostMapping("/ajax/saveTestRsult")
-    public Map<String, Object> saveTestRsult(@RequestBody Map<String, Object> params) {
-        Long projId = StringUtil.convertToLong(params.get("projId"));
-        if (projId == 0) {
-            logger.warn("deleteProj 缺少参数 params={}", params.toString());
-            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
-        }
+    @RequestMapping(value = "/ajax/endEditable", method = RequestMethod.POST)
+    public Map<String, Object> endEditable(@RequestParam Map<String, String> params) {
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
 
-        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
-
-
-//        if (userObj.getIntAttribute("role") != 9) {
-//            logger.warn("deletePage 用户无权限 userId={}", userId);
-//            return ApiResponseUtil.error(ErrorCode.E5001, "该登录用户无删除权限 userId={}", userId);
-//        }
-
-//        projectService.removeProject(userId, projId);
-//        updateHisService.saveUpdateHis(userObj, projId, null, null);
-        return ApiResponseUtil.success();
-    }
-
-    /**
-     * 保存确认结果
-     */
-    @ResponseBody
-    @PostMapping("/ajax/saveConfirmRsult")
-    public Map<String, Object> saveConfirmRsult(@RequestBody Map<String, Object> params) {
-        Long projId = StringUtil.convertToLong(params.get("projId"));
-        if (projId == 0) {
-            logger.warn("deleteProj 缺少参数 params={}", params.toString());
-            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
+        long itemId = StringUtil.convertToLong(params.get("itemId"));
+        if (itemId == 0) {
+            logger.warn("endEditable 缺少参数itemId");
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数itemId");
         }
-        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
 
-        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
+        BaseMongoMap tblMap = itemService.findTestItem(itemId);
+        if (tblMap == null) {
+            // 表不存在
+            logger.warn("endEditable 数据不存在 itemId={}, userId={}", itemId, userId);
+            return ApiResponseUtil.error(ErrorCode.E5101, "指定的数据不存在 itemId={}", itemId);
+        }
+        Long currEditorId = tblMap.getLongAttribute("currEditorId");
+        if (!userId.equals(currEditorId)) {
+            logger.warn("endEditable 数据不是由当前用户编辑 itemId={}, currEditorId={} userId={}", itemId, currEditorId, userId);
+            BaseMongoMap userMap = userService.getUserByIId(currEditorId);
+            if (userMap == null) {
+                logger.warn("endEditable 用户不存在 itemId={}, currEditorId={} userId={}", itemId, currEditorId, userId);
+            } else {
+                logger.warn("endEditable {}正在编辑该项数据 itemId={}, currEditorId={} userId={}", userMap.getStringAttribute("userName"), itemId, currEditorId, userId);
+                return ApiResponseUtil.error(ErrorCode.E5101, "{}正在编辑该项数据 itemId={}", userMap.getStringAttribute("userName"), itemId);
+            }
+        }
 
-
-//        if (userObj.getIntAttribute("role") != 9) {
-//            logger.warn("deletePage 用户无权限 userId={}", userId);
-//            return ApiResponseUtil.error(ErrorCode.E5001, "该登录用户无删除权限 userId={}", userId);
-//        }
-
-//        projectService.removeProject(userId, projId);
-//        updateHisService.saveUpdateHis(userObj, projId, null, null);
+        itemService.setEditStatus(itemId, null, null);
         return ApiResponseUtil.success();
     }
 

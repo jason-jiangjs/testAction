@@ -53,7 +53,7 @@ $(function () {
 // 是否可编辑
 var editable = 0;
 // 当前行的MD5值
-var _currRowIdxMD5 = null;
+var _currWorkItemMD5 = null;
 
 // 行切换时的处理，保存数据、检查是否可编辑等
 // 如果没有编辑权限，则不做处理
@@ -108,17 +108,15 @@ function onCheckBegEdit(index, field, value) {
         return false;
     }
 
-    // _currRowIdxMD5 = $.md5($.trim(oldObj.group1) + '||' + $.trim(oldObj.group2) + '||' + $.trim(oldObj.condition1) + '||' + $.trim(oldObj.condition2) + '||' + $.trim(oldObj.expectation)
-    //     + '||' + $.trim(oldObj.result) + '||' + $.trim(oldObj.category) + '||' + $.trim(oldObj.desc) + '||' + $.trim(oldObj.cause) + '||' + $.trim(oldObj.cfmResult));
-
     // 双击不同列，弹出不同窗口
     if (field == 'group1' || field == 'group2' || field == 'condition1' || field == 'condition2' || field == 'expectation') {
         $('#editDlg1').dialog({
             title: '测试条件',
             onBeforeClose: function() {
-                return _cfmEndEdit(s1._id, '#editDlg1');
+                return _cfmEndEdit(s1._id, $.trim(s1.group1), $.trim(s1.group2), $.trim(s1.condition1), $.trim(s1.condition2), $.trim(s1.expectation));
             }
         });
+        _currWorkItemMD5 = $.md5($.trim(s1.group1) + '||' + $.trim(s1.group2) + '||' + $.trim(s1.condition1) + '||' + $.trim(s1.condition2) + '||' + $.trim(s1.expectation));
         $('#itemId').val(s1._id);
         $('#group1').textbox('setValue', s1.group1);
         $('#group2').textbox('setValue', s1.group2);
@@ -137,9 +135,10 @@ function onCheckBegEdit(index, field, value) {
         $('#editDlg2').dialog({
             title: '测试结果',
             onBeforeClose: function() {
-                return _cfmEndEdit(s1._id, '#editDlg2');
+                return _cfmEndEdit(s1._id, $.trim(s1.result), $.trim(s1.category), $.trim(s1.desc), $.trim(s1.cause));
             }
         });
+        _currWorkItemMD5 = $.md5($.trim(s1.result) + '||' + $.trim(s1.category) + '||' + $.trim(s1.desc) + '||' + $.trim(s1.cause));
         $('#itemId').val(s1._id);
         $('#testDate').textbox('setValue', s1.testDate);
         $('#tester').textbox('setValue', s1.tester);
@@ -159,9 +158,11 @@ function onCheckBegEdit(index, field, value) {
         $('#editDlg3').dialog({
             title: '结果确认',
             onBeforeClose: function() {
-                return _cfmEndEdit(s1._id, '#editDlg3');
+                return _cfmEndEdit(s1._id, $.trim(s1.cfmResult));
             }
         });
+        _currWorkItemMD5 = $.md5($.trim(s1.cfmResult));
+
         $('#itemId').val(s1._id);
         $('#cfmDate').textbox('setValue', s1.cfmDate);
         $('#confirmer').textbox('setValue', s1.confirmer);
@@ -172,32 +173,38 @@ function onCheckBegEdit(index, field, value) {
     return true;
 }
 
-// 检查数据的MD5值，这里不判断参数为空的情况，由调用时处理
-function _checkItemMD5(oldObj, newObj) {
-    var oldMD5 = $.md5($.trim(oldObj.group1) + '||' + $.trim(oldObj.group2) + '||' + $.trim(oldObj.condition1) + '||' + $.trim(oldObj.condition2) + '||' + $.trim(oldObj.expectation)
-        + '||' + $.trim(oldObj.result) + '||' + $.trim(oldObj.category) + '||' + $.trim(oldObj.desc) + '||' + $.trim(oldObj.cause) + '||' + $.trim(oldObj.cfmResult));
-
-    var newMD5 = $.md5($.trim(newObj.group1) + '||' + $.trim(newObj.group2) + '||' + $.trim(newObj.condition1) + '||' + $.trim(newObj.condition2) + '||' + $.trim(newObj.expectation)
-        + '||' + $.trim(newObj.result) + '||' + $.trim(newObj.category) + '||' + $.trim(newObj.desc) + '||' + $.trim(newObj.cause) + '||' + $.trim(newObj.cfmResult));
-
-    return oldMD5 == newMD5;
-}
-
 
 // 确认是否结束编辑
-function _cfmEndEdit(itemId, dlgId) {
-
+function _cfmEndEdit(itemId, val1, val2, val3, val4, val5) {
+    var plainTxt = val1;
+    if (val2 != undefined) {
+        plainTxt += '||' + val2;
+    }
+    if (val3 != undefined) {
+        plainTxt += '||' + val3;
+    }
+    if (val4 != undefined) {
+        plainTxt += '||' + val4;
+    }
+    if (val5 != undefined) {
+        plainTxt += '||' + val5;
+    }
+    var nowWorkItemMD5 = $.md5(plainTxt);
+    if (_currWorkItemMD5 == nowWorkItemMD5) {
+        // 没有修改，不提示保存，直接退出
+        // 取消编辑状态
+        _endEditing(itemId);
+        return true;
+    }
 
     var rst = confirm('确定要结束编辑?\n不保存当前修改内容，该操作不可恢复，是否确认结束?');
     if (rst == true) {
         // 提交到后台，取消编辑状态
-        // $(dlgId).dialog('close');
-
+        _endEditing(itemId);
         return true;
     } else {
         return false;
     }
-
 }
 
 // 备注一栏的显示形式
@@ -271,6 +278,7 @@ function importItem() {
 function submitForm1() {
     // 不判断是否已修改，全部提交至后台
     var postData = {};
+    postData.itemType = 'saveCondition';
     postData.itemId = $.trim($('#itemId').val());
     postData.group1 = $.trim($('#group1').textbox('getValue'));
     postData.group2 = $.trim($('#group2').textbox('getValue'));
@@ -278,6 +286,13 @@ function submitForm1() {
     postData.condition2 = $.trim($('#condition2').textbox('getValue'));
     postData.expectation = $.trim($('#expectation').textbox('getValue'));
 
+    var nowWorkItemMD5 = $.md5($.trim(postData.group1) + '||' + $.trim(postData.group2) + '||' + $.trim(postData.condition1) + '||' + $.trim(postData.condition2) + '||' + $.trim(postData.expectation));
+    if (_currWorkItemMD5 == nowWorkItemMD5) {
+        // 没有修改，不保存，直接退出
+        // 取消编辑状态
+        _endEditing(itemId);
+        return;
+    }
     // 先验证必须值
     if (postData.expectation == '' || (postData.condition1 == '' && postData.condition2 == '')) {
         layer.msg("必须输入测试条件和期望结果！");
@@ -287,7 +302,7 @@ function submitForm1() {
     var loadLy = layer.load(1);
     $.ajax({
         type: 'post',
-        url: Ap_CtxPath + '/ajax/saveCondition',
+        url: Ap_CtxPath + '/ajax/saveTestItem',
         data: JSON.stringify(postData),
         contentType: "application/json; charset=utf-8",
         success: function (data) {
@@ -306,12 +321,20 @@ function submitForm1() {
 function submitForm2() {
     // 不判断是否已修改，全部提交至后台
     var postData = {};
+    postData.itemType = 'saveTestResult';
     postData.itemId = $.trim($('#itemId').val());
     postData.result = $.trim($('#result').textbox('getValue'));
     postData.category = $.trim($('#category').textbox('getValue'));
     postData.desc = $.trim($('#desc').textbox('getValue'));
     postData.cause = $.trim($('#cause').textbox('getValue'));
 
+    var nowWorkItemMD5 = $.md5($.trim(postData.result) + '||' + $.trim(postData.category) + '||' + $.trim(postData.desc) + '||' + $.trim(postData.cause));
+    if (_currWorkItemMD5 == nowWorkItemMD5) {
+        // 没有修改，不保存，直接退出
+        // 取消编辑状态
+        _endEditing(itemId);
+        return;
+    }
     // 先验证必须值
     if (postData.result == '' || postData.category == '' || postData.desc == '') {
         layer.msg("必须输入故障现象！");
@@ -321,7 +344,7 @@ function submitForm2() {
     var loadLy = layer.load(1);
     $.ajax({
         type: 'post',
-        url: Ap_CtxPath + '/ajax/saveTestRsult',
+        url: Ap_CtxPath + '/ajax/saveTestItem',
         data: JSON.stringify(postData),
         contentType: "application/json; charset=utf-8",
         success: function (data) {
@@ -340,9 +363,17 @@ function submitForm2() {
 function submitForm3() {
     // 不判断是否已修改，全部提交至后台
     var postData = {};
+    postData.itemType = 'saveConfirmResult';
     postData.itemId = $.trim($('#itemId').val());
     postData.cfmResult = $.trim($('#cfmResult').textbox('getValue'));
 
+    var nowWorkItemMD5 = $.md5($.trim(postData.cfmResult));
+    if (_currWorkItemMD5 == nowWorkItemMD5) {
+        // 没有修改，不保存，直接退出
+        // 取消编辑状态
+        _endEditing(itemId);
+        return;
+    }
     // 先验证必须值
     if (postData.cfmResult == '') {
         layer.msg("必须输入确认结果！");
@@ -352,7 +383,7 @@ function submitForm3() {
     var loadLy = layer.load(1);
     $.ajax({
         type: 'post',
-        url: Ap_CtxPath + '/ajax/saveConfirmRsult',
+        url: Ap_CtxPath + '/ajax/saveTestItem',
         data: JSON.stringify(postData),
         contentType: "application/json; charset=utf-8",
         success: function (data) {
@@ -371,4 +402,20 @@ function submitForm3() {
 function _endSave(dlgId) {
     $('#item_table').datagrid('reload', {});
     $(dlgId).dialog('close', true);
+}
+
+function _endEditing(itemId) {
+    var loadLy = layer.load(1);
+    $.ajax({
+        type: 'post',
+        url: Ap_CtxPath + '/ajax/endEditable?itemId=' + itemId,
+        success: function (data) {
+            layer.close(loadLy);
+            if (data.code == 0) {
+
+            } else {
+                layer.msg(data.msg + ' code=' + data.code);
+            }
+        }
+    });
 }

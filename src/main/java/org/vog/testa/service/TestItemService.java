@@ -58,10 +58,10 @@ public class TestItemService extends BaseService {
     /**
      * 开始编辑表
      */
-    public void startEditTable(long userId, long itemId) {
+    public void setEditStatus(long itemId, Long userId, Long updTime) {
         Map<String, Object> infoMap = new HashMap<>();
         infoMap.put("currEditorId", userId);
-        infoMap.put("startEditTime", DateTimeUtil.getNowTime());
+        infoMap.put("startEditTime", updTime);
 
         itemDao.updateObject(itemId, infoMap, false);
     }
