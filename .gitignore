@@ -23,3 +23,7 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+/doc/.gitignore
+/doc/lib/jsch-0.1.54.jar
+/.gitignore
+/doc/build-tomcat.xml

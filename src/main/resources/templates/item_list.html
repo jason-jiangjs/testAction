@@ -66,14 +66,21 @@
             <input class="easyui-textbox" id="tester" style="width:450px" data-options="label:'测试者:',readonly:true"/>
         </div>
         <div style="margin-bottom:20px">
-            <select id="result" class="easyui-combobox" name="result" style="width:450px" data-options="label:'测试结果:',panelHeight:100">
+            <select id="result" class="easyui-combobox" style="width:450px" data-options="label:'测试结果:',editable:false,panelHeight:100">
                 <option value="OK">OK</option>
                 <option value="NG">NG</option>
                 <option value="WT">WT</option>
             </select>
         </div>
         <div style="margin-bottom:20px">
-            <input class="easyui-numberbox" id="category" style="width:450px" data-options="label:'故障分类:'"/>
+            <select id="category" class="easyui-combobox" style="width:450px" data-options="label:'故障分类:',editable:false,panelHeight:200">
+                <option value="0">无</option>
+                <option value="A">致命错误</option>
+                <option value="B">严重错误</option>
+                <option value="C">一般性错误</option>
+                <option value="D">较小错误</option>
+                <option value="E">建议或新需求</option>
+            </select>
         </div>
         <div style="margin-bottom:20px">
             <input class="easyui-textbox" id="desc" style="width:450px;height:70px" data-options="label:'故障描述:',multiline:true"/>

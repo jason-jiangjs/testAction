@@ -12,5 +12,10 @@ var msg = {
     user_status_val_2 : '锁定',
     user_status_val_4 : '删除',
 
+    err_lvl_A : '致命错误',
+    err_lvl_B : '严重错误',
+    err_lvl_C : '一般性错误',
+    err_lvl_D : '较小错误',
+    err_lvl_E : '建议或新需求',
 
 };

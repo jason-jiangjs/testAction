@@ -29,7 +29,7 @@ $(function () {
         {field:'testDate',title:'测试日期',width:100},
         {field:'tester',title:'测试者',width:80},
         {field:'result',title:'结果',width:50},
-        {field:'category',title:'故障分类',width:150},
+        {field:'category',title:'故障分类',width:150,formatter:errLvlformatter},
         {field:'desc',title:'故障描述',width:150,formatter:descformatter},
         {field:'cause',title:'故障原因',width:150,formatter:descformatter},
         {field:'cfmDate',title:'确认日期',width:100},
@@ -143,7 +143,7 @@ function onCheckBegEdit(index, field, value) {
         $('#testDate').textbox('setValue', s1.testDate);
         $('#tester').textbox('setValue', s1.tester);
         $('#result').textbox('setValue', s1.result);
-        $('#category').textbox('setValue', s1.category);
+        $('#category').combobox('setValue', s1.category);
         $('#desc').textbox('setValue', s1.desc);
         $('#cause').textbox('setValue', s1.cause);
         $('#editDlg2').dialog('open');
@@ -205,6 +205,14 @@ function _cfmEndEdit(itemId, val1, val2, val3, val4, val5) {
     } else {
         return false;
     }
+}
+
+// 故障分类
+function errLvlformatter(value, row, index) {
+    if (value) {
+        return $translate('err_lvl_' + value);
+    }
+    return '';
 }
 
 // 备注一栏的显示形式
@@ -290,7 +298,8 @@ function submitForm1() {
     if (_currWorkItemMD5 == nowWorkItemMD5) {
         // 没有修改，不保存，直接退出
         // 取消编辑状态
-        _endEditing(itemId);
+        _endEditing(postData.itemId);
+        $('#editDlg1').dialog('close', true);
         return;
     }
     // 先验证必须值
@@ -332,11 +341,16 @@ function submitForm2() {
     if (_currWorkItemMD5 == nowWorkItemMD5) {
         // 没有修改，不保存，直接退出
         // 取消编辑状态
-        _endEditing(itemId);
+        _endEditing(postData.itemId);
+        $('#editDlg2').dialog('close', true);
         return;
     }
     // 先验证必须值
-    if (postData.result == '' || postData.category == '' || postData.desc == '') {
+    if (postData.result == 'OK' && (postData.category != '' || postData.desc != '' || postData.cause != '')) {
+        layer.msg("测试结果正确时不需要填写故障描述。");
+        return;
+    }
+    if (postData.result == 'NG' && (postData.category == '' || postData.desc == '')) {
         layer.msg("必须输入故障现象！");
         return;
     }
@@ -371,7 +385,8 @@ function submitForm3() {
     if (_currWorkItemMD5 == nowWorkItemMD5) {
         // 没有修改，不保存，直接退出
         // 取消编辑状态
-        _endEditing(itemId);
+        _endEditing(postData.itemId);
+        $('#editDlg3').dialog('close', true);
         return;
     }
     // 先验证必须值

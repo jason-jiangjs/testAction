@@ -1,5 +1,6 @@
 package org.vog.testa.web.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -178,18 +179,18 @@ public class TestItemMngController extends BaseController {
         // 其他参数
         String itemType = (String) params.get("itemType");
         if (itemType.equals("saveTestResult")) {
-            if (itemMap.getStringAttribute("testDate") == null) {
+            if (StringUtils.isBlank(itemMap.getStringAttribute("testDate"))) {
                 params.put("testDate", DateTimeUtil.getNow(DateTimeUtil.DEFAULT_DATE_FORMAT));
             }
-            if (itemMap.getStringAttribute("tester") == null) {
+            if (StringUtils.isBlank(itemMap.getStringAttribute("tester"))) {
                 params.put("tester", userObj.getUsername());
             }
         }
         if (itemType.equals("saveConfirmResult")) {
-            if (itemMap.getStringAttribute("cfmDate") == null) {
+            if (StringUtils.isBlank(itemMap.getStringAttribute("cfmDate"))) {
                 params.put("cfmDate", DateTimeUtil.getNow(DateTimeUtil.DEFAULT_DATE_FORMAT));
             }
-            if (itemMap.getStringAttribute("confirmer") == null) {
+            if (StringUtils.isBlank(itemMap.getStringAttribute("confirmer"))) {
                 params.put("confirmer", userObj.getUsername());
             }
         }
