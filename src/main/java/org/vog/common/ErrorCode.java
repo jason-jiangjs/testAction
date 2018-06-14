@@ -65,6 +65,10 @@ public class ErrorCode {
      */
     public static int E5102 = 5102;
     /**
+     * 编辑冲突(有其他用户正在操作)
+     */
+    public static int E5103 = 5103;
+    /**
      * 验证码无效/错误
      */
     public static int E5105 = 5105;

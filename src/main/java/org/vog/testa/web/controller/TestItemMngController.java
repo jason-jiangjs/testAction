@@ -41,6 +41,8 @@ public class TestItemMngController extends BaseController {
     @Autowired
     private UpdateHisService updateHisService;
 
+    private static Map<Long, Long> itemInEdit = new HashMap<>();
+
     /**
      * 转到测试项目一览画面
      */
@@ -143,14 +145,14 @@ public class TestItemMngController extends BaseController {
     }
 
     /**
-     * 保存测试条件
+     * 保存测试项目
      */
     @ResponseBody
     @PostMapping("/ajax/saveTestItem")
     public Map<String, Object> saveTestItem(@RequestBody Map<String, Object> params) {
         Long projId = (Long) request.getSession().getAttribute("_projId");
         if (projId == 0) {
-            logger.warn("deleteProj 缺少参数 params={}", params.toString());
+            logger.warn("saveTestItem 缺少参数 params={}", params.toString());
             return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
         }
         Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
@@ -162,22 +164,32 @@ public class TestItemMngController extends BaseController {
 //        }
 
         // 获取item id，新增项目时也会有id
-        long itemId = StringUtil.convertToLong(params.get("itemId"));
-        if (itemId == 0) {
-            logger.warn("chkItemEditable 缺少参数itemId");
-            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数itemId");
+        Long itemId = StringUtil.convertToLong(params.get("itemId"));
+        BaseMongoMap itemMap = null;
+        if (itemId != 0) {
+            itemMap = itemService.findTestItem(itemId);
+            if (itemMap == null) {
+                // 表不存在
+                logger.warn("saveTestItem 测试项不存在 itemId={}, userId={}", itemId, userId);
+                return ApiResponseUtil.error(ErrorCode.E5101, "指定的测试项不存在 itemId={}", itemId);
+            }
         }
-        BaseMongoMap itemMap = itemService.findTestItem(itemId);
-        if (itemMap == null) {
-            // 表不存在
-            logger.warn("chkItemEditable 测试项不存在 itemId={}, userId={}", itemId, userId);
-            return ApiResponseUtil.error(ErrorCode.E5101, "指定的测试项不存在 itemId={}", itemId);
+        Long conflictUserId = itemInEdit.get(itemId);
+        if (conflictUserId != null) {
+            logger.warn("saveTestItem 有其他用户正在操作 itemId={}, userId={}, conflictUserId={}", itemId, userId, conflictUserId);
+            BaseMongoMap userMap = userService.getUserByIId(conflictUserId);
+            if (userMap == null) {
+                logger.warn("saveTestItem 用户不存在 itemId={}, currEditorId={} userId={}", itemId, conflictUserId, userId);
+            } else {
+                logger.warn("saveTestItem {}正在编辑该项数据 itemId={}, currEditorId={} userId={}", userMap.getStringAttribute("userName"), itemId, conflictUserId, userId);
+                return ApiResponseUtil.error(ErrorCode.E5103, "{}正在编辑，请稍后再试。 itemId={}", userMap.getStringAttribute("userName"), itemId);
+            }
         }
 
         // 然后检查是否被编辑过（不允许同时打开编辑）
 
         // 其他参数
-        String itemType = (String) params.get("itemType");
+        String itemType = StringUtils.trimToEmpty((String) params.get("itemType"));
         if (itemType.equals("saveTestResult")) {
             if (StringUtils.isBlank(itemMap.getStringAttribute("testDate"))) {
                 params.put("testDate", DateTimeUtil.getNow(DateTimeUtil.DEFAULT_DATE_FORMAT));
@@ -194,12 +206,75 @@ public class TestItemMngController extends BaseController {
                 params.put("confirmer", userObj.getUsername());
             }
         }
+        if (itemType.equals("insert")) {
+            // 插入数据，麻烦了，要对现有数据重新排列顺序，并保存
+            if (itemType != null) {
+
+            }
+
+        }
 
         params.remove("itemId");
         params.remove("itemType");
         itemService.setEditStatus(itemId, null, null);
-        itemService.saveTestItem(itemId, params);
+        itemService.saveTestItem(userId, itemId, params);
         updateHisService.saveItemUpdateHis(userObj, "保存测试条件", projId, itemId, params);
+        return ApiResponseUtil.success();
+    }
+
+    /**
+     * 删除测试项目
+     */
+    @ResponseBody
+    @PostMapping("/ajax/delTestItem")
+    public Map<String, Object> delTestItem(@RequestParam Map<String, Object> params) {
+        Long projId = (Long) request.getSession().getAttribute("_projId");
+        if (projId == 0) {
+            logger.warn("delTestItem 缺少参数 params={}", params.toString());
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数，请选择后再操作。");
+        }
+        Long userId = (Long) request.getSession().getAttribute(Constants.KEY_USER_ID);
+        CustomerUserDetails userObj = (CustomerUserDetails) ((Authentication) request.getUserPrincipal()).getPrincipal();
+
+//        if (userObj.getIntAttribute("role") != 9) {
+//            logger.warn("deletePage 用户无权限 userId={}", userId);
+//            return ApiResponseUtil.error(ErrorCode.E5001, "该登录用户无删除权限 userId={}", userId);
+//        }
+
+        // 获取item id
+        long itemId = StringUtil.convertToLong(params.get("itemId"));
+        if (itemId == 0) {
+            logger.warn("delTestItem 缺少参数itemId");
+            return ApiResponseUtil.error(ErrorCode.W1001, "缺少参数itemId");
+        }
+        BaseMongoMap itemMap = itemService.findTestItem(itemId);
+        if (itemMap == null) {
+            // 表不存在
+            logger.warn("delTestItem 测试项不存在 itemId={}, userId={}", itemId, userId);
+            return ApiResponseUtil.error(ErrorCode.E5101, "指定的测试项不存在 itemId={}", itemId);
+        }
+
+        Long conflictUserId = itemInEdit.get(itemId);
+        if (conflictUserId != null) {
+            logger.warn("delTestItem 有其他用户正在操作 itemId={}, userId={}, conflictUserId={}", itemId, userId, conflictUserId);
+            BaseMongoMap userMap = userService.getUserByIId(conflictUserId);
+            if (userMap == null) {
+                logger.warn("delTestItem 用户不存在 itemId={}, currEditorId={} userId={}", itemId, conflictUserId, userId);
+            } else {
+                logger.warn("delTestItem {}正在编辑该项数据 itemId={}, currEditorId={} userId={}", userMap.getStringAttribute("userName"), itemId, conflictUserId, userId);
+                return ApiResponseUtil.error(ErrorCode.E5103, "{}正在编辑，请稍后再试。 itemId={}", userMap.getStringAttribute("userName"), itemId);
+            }
+        }
+
+        // 然后检查是否被编辑过（不允许同时打开编辑）
+
+
+        params.remove("itemId");
+        params.remove("itemType");
+        params.put("deleteFlg", true);
+        itemService.setEditStatus(itemId, null, null);
+        itemService.saveTestItem(userId, itemId, params);
+        updateHisService.saveItemUpdateHis(userObj, "删除测试条件", projId, itemId, params);
         return ApiResponseUtil.success();
     }
 

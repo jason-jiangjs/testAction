@@ -23,18 +23,19 @@ $(function () {
     options.columns = [[
         {field:'group1',title:'分组一',width:150,formatter:descformatter},
         {field:'group2',title:'分组二',width:150,formatter:descformatter},
-        {field:'condition1',title:'测试条件1',width:150,formatter:descformatter},
-        {field:'condition2',title:'测试条件2',width:150,formatter:descformatter},
-        {field:'expectation',title:'期望结果',width:150,formatter:descformatter},
+        {field:'condition1',title:'前置条件',width:180,formatter:descformatter},
+        {field:'condition2',title:'步骤描述',width:180,formatter:descformatter},
+        {field:'expectation',title:'期望结果',width:180,formatter:descformatter},
         {field:'testDate',title:'测试日期',width:100},
         {field:'tester',title:'测试者',width:80},
         {field:'result',title:'结果',width:50},
         {field:'category',title:'故障分类',width:150,formatter:errLvlformatter},
-        {field:'desc',title:'故障描述',width:150,formatter:descformatter},
-        {field:'cause',title:'故障原因',width:150,formatter:descformatter},
+        {field:'desc',title:'故障描述',width:180,formatter:descformatter},
+        {field:'cause',title:'故障原因',width:180,formatter:descformatter},
         {field:'cfmDate',title:'确认日期',width:100},
         {field:'confirmer',title:'确认者',width:80},
-        {field:'cfmResult',title:'确认结果及描述',width:150,formatter:descformatter}
+        {field:'cfmResult',title:'确认结果及描述',width:180,formatter:descformatter},
+        {field:'remarks',title:'备注',width:180,formatter:descformatter}
     ]];
     $('#item_table').datagrid(options);
     $('#item_table').datagrid('resize', {
@@ -111,7 +112,6 @@ function onCheckBegEdit(index, field, value) {
     // 双击不同列，弹出不同窗口
     if (field == 'group1' || field == 'group2' || field == 'condition1' || field == 'condition2' || field == 'expectation') {
         $('#editDlg1').dialog({
-            title: '测试条件',
             onBeforeClose: function() {
                 return _cfmEndEdit(s1._id, $.trim(s1.group1), $.trim(s1.group2), $.trim(s1.condition1), $.trim(s1.condition2), $.trim(s1.expectation));
             }
@@ -133,7 +133,6 @@ function onCheckBegEdit(index, field, value) {
         }
 
         $('#editDlg2').dialog({
-            title: '测试结果',
             onBeforeClose: function() {
                 return _cfmEndEdit(s1._id, $.trim(s1.result), $.trim(s1.category), $.trim(s1.desc), $.trim(s1.cause));
             }
@@ -156,7 +155,6 @@ function onCheckBegEdit(index, field, value) {
         }
 
         $('#editDlg3').dialog({
-            title: '结果确认',
             onBeforeClose: function() {
                 return _cfmEndEdit(s1._id, $.trim(s1.cfmResult));
             }
@@ -176,6 +174,23 @@ function onCheckBegEdit(index, field, value) {
 
 // 确认是否结束编辑
 function _cfmEndEdit(itemId, val1, val2, val3, val4, val5) {
+    if (itemId == '') {
+        // 新增时
+        if ($.trim($('#group1').textbox('getValue')) == ''
+            && $.trim($('#group2').textbox('getValue')) == ''
+            && $.trim($('#condition1').textbox('getValue')) == ''
+            && $.trim($('#condition2').textbox('getValue')) == ''
+            && $.trim($('#expectation').textbox('getValue')) == '') {
+            return true;
+        }
+        var rst = confirm('确定要结束编辑?\n不保存当前修改内容，该操作不可恢复，是否确认结束?');
+        if (rst == true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     var plainTxt = val1;
     if (val2 != undefined) {
         plainTxt += '||' + val2;
@@ -227,11 +242,30 @@ function descformatter(value, row, index) {
 
 // 添加测试项
 function newItem() {
-    // 先取得当前选择行
-    var gridObj = $('#page_grid');
+    // 不检查编辑冲突，直接弹出新对话框
+    $('#editDlg1').dialog({
+        onBeforeClose: function() {
+            return _cfmEndEdit('');
+        }
+    });
+
+    $('#itemId').val('');
+    $('#group1').textbox('setValue', '');
+    $('#group2').textbox('setValue', '');
+    $('#condition1').textbox('setValue', '');
+    $('#condition2').textbox('setValue', '');
+    $('#expectation').textbox('setValue', '');
+    $('#editDlg1').dialog('open');
+}
+
+// 插入测试项，必须先检查是否有其他人正在编辑，若有，则不允许操作
+var isInsertItem = false;
+function insertItem() {
+    // 要先记住插入条目的位置
+    var gridObj = $('#item_table');
     var s1 = gridObj.datagrid('getSelected');
     if (s1 == null || s1 == undefined) {
-        layer.msg('请选择一个数据库后再操作．')
+        layer.msg('请先确认插入数据的位置后再操作．')
         return;
     }
     var s2 = gridObj.datagrid('getRowIndex', s1._id);
@@ -240,53 +274,93 @@ function newItem() {
         return;
     }
 
-    $('#editDlg').dialog({
-        title: '编辑 - ' + s1.pageName
+    gridObj.datagrid('insertRow', {
+        index: s2,
+        row: { default: "" }
     });
 
-    $('#pageId').val(s1._id);
-    $('#group1').textbox('setValue', s1.group1);
-    $('#group2').textbox('setValue', s1.group2);
-    $('#pageName').textbox('setValue', s1.pageName);
-    $('#diffiLevel').numberbox('setValue', s1.diffiLevel);
-    $('#codeCnt').numberbox('setValue', s1.codeCnt);
-    $('#remarks').textbox('setValue', s1.desc);
-    $('#editDlg').dialog('open');
-}
-
-// 插入测试项，必须先检查是否有其他人正在编辑，若有，则不允许操作
-function insertItem() {
-    // 先在grid里加一行，然后弹出对话框
-    $('#editDlg').dialog({
-        title: '新增'
+    isInsertItem = true;
+    // 先检查编辑冲突，然后弹出对话框
+    $('#editDlg1').dialog({
+        onBeforeClose: function() {
+            return _cfmEndEdit('');
+        }
     });
 
-    $('#pageId').val(null);
-    $('#group1').textbox('setValue', null);
-    $('#group2').textbox('setValue', null);
-    $('#pageName').textbox('setValue', null);
-    $('#diffiLevel').numberbox('setValue', null);
-    $('#codeCnt').numberbox('setValue', null);
-    $('#remarks').textbox('setValue', null);
-    $('#editDlg').dialog('open');
+    $('#itemId').val('');
+    $('#group1').textbox('setValue', '');
+    $('#group2').textbox('setValue', '');
+    $('#condition1').textbox('setValue', '');
+    $('#condition2').textbox('setValue', '');
+    $('#expectation').textbox('setValue', '');
+    $('#editDlg1').dialog('open');
 }
 
 // 删除测试项，必须先检查是否有其他人正在编辑，若有，则不允许操作
 function delItem() {
+    var gridObj = $('#item_table');
+    var s1 = gridObj.datagrid('getSelected');
+    if (s1 == null || s1 == undefined) {
+        layer.msg('请选择后再操作．')
+        return;
+    }
+    var s2 = gridObj.datagrid('getRowIndex', s1._id);
+    if (s2 < 0) {
+        layer.msg('数据错误，请刷新画面后再操作．')
+        return;
+    }
 
+    layer.confirm('确定要删除选定的项目?<br>该操作不可恢复，是否确认删除?', { icon: 7,
+        btn: ['确定','取消'] //按钮
+    }, function(index) {
+        // 提交请求到后台
+        var loadLy = layer.load(1);
+        $.ajax({
+            type: 'post',
+            url: Ap_CtxPath + '/ajax/delTestItem?itemId=' + s1._id,
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                layer.close(loadLy);
+                if (data.code == 0) {
+                    // 刷新画面一览
+                    layer.close(index);
+                    layer.msg('删除成功，将关闭对话框．', {time: 500});
+                    setTimeout("_endSave()", 500)
+                } else {
+                    layer.msg(data.msg + ' code=' + data.code);
+                }
+            }
+        });
+    }, function() {
+        // 无操作
+    });
 }
 
 // 批量导入，必须先检查是否有其他人正在编辑，若有，则不允许操作
 // 已有数据时暂不支持批量导入
 function importItem() {
-
+    var gridObj = $('#item_table');
+    var s1 = gridObj.datagrid('getSelected');
+    if (s1 == null || s1 == undefined) {
+        layer.msg('请选择后再操作．')
+        return;
+    }
+    var s2 = gridObj.datagrid('getRowIndex', s1._id);
+    if (s2 < 0) {
+        layer.msg('数据错误，请刷新画面后再操作．')
+        return;
+    }
 }
 
 // 提交修改(保存)
 function submitForm1() {
     // 不判断是否已修改，全部提交至后台
     var postData = {};
-    postData.itemType = 'saveCondition';
+    if (isInsertItem) {
+        postData.itemType = 'insert';
+    } else {
+        postData.itemType = 'saveCondition';
+    }
     postData.itemId = $.trim($('#itemId').val());
     postData.group1 = $.trim($('#group1').textbox('getValue'));
     postData.group2 = $.trim($('#group2').textbox('getValue'));
@@ -303,8 +377,8 @@ function submitForm1() {
         return;
     }
     // 先验证必须值
-    if (postData.expectation == '' || (postData.condition1 == '' && postData.condition2 == '')) {
-        layer.msg("必须输入测试条件和期望结果！");
+    if (postData.group1 == '' && postData.group2 == '' && postData.condition1 == '' && postData.condition2 == '' && postData.expectation == '') {
+        layer.msg("必须至少输入一项！");
         return;
     }
 
@@ -317,8 +391,9 @@ function submitForm1() {
         success: function (data) {
             layer.close(loadLy);
             if (data.code == 0) {
-                setTimeout("_endSave('#editDlg1')", 1000);
-                layer.msg('保存成功，将关闭对话框．', {time: 1000});
+                setTimeout("_endSave('#editDlg1')", 500);
+                layer.msg('保存成功，将关闭对话框．', {time: 500});
+                isInsertItem = false;
             } else {
                 layer.msg(data.msg + ' code=' + data.code);
             }
@@ -346,11 +421,11 @@ function submitForm2() {
         return;
     }
     // 先验证必须值
-    if (postData.result == 'OK' && (postData.category != '' || postData.desc != '' || postData.cause != '')) {
+    if (postData.result == 'OK' && ((postData.category != '' && postData.category != '0') || postData.desc != '' || postData.cause != '')) {
         layer.msg("测试结果正确时不需要填写故障描述。");
         return;
     }
-    if (postData.result == 'NG' && (postData.category == '' || postData.desc == '')) {
+    if (postData.result == 'NG' && (postData.category == '' || postData.category == '0' || postData.desc == '')) {
         layer.msg("必须输入故障现象！");
         return;
     }
@@ -364,8 +439,8 @@ function submitForm2() {
         success: function (data) {
             layer.close(loadLy);
             if (data.code == 0) {
-                layer.msg('保存成功，将关闭对话框．', {time: 1000});
-                setTimeout("_endSave('#editDlg2')", 1000);
+                layer.msg('保存成功，将关闭对话框．', {time: 500});
+                setTimeout("_endSave('#editDlg2')", 500);
             } else {
                 layer.msg(data.msg + ' code=' + data.code);
             }
@@ -404,8 +479,8 @@ function submitForm3() {
         success: function (data) {
             layer.close(loadLy);
             if (data.code == 0) {
-                layer.msg('保存成功，将关闭对话框．');
-                setTimeout("_endSave('#editDlg3')", 1000);
+                layer.msg('保存成功，将关闭对话框．', {time: 500});
+                setTimeout("_endSave('#editDlg3')", 500);
             } else {
                 layer.msg(data.msg + ' code=' + data.code);
             }
@@ -416,10 +491,15 @@ function submitForm3() {
 // 关闭对话框,刷新一览(当前分页)
 function _endSave(dlgId) {
     $('#item_table').datagrid('reload', {});
-    $(dlgId).dialog('close', true);
+    if (dlgId) {
+        $(dlgId).dialog('close', true);
+    }
 }
 
 function _endEditing(itemId) {
+    if (itemId == '') {
+        return;
+    }
     var loadLy = layer.load(1);
     $.ajax({
         type: 'post',

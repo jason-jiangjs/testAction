@@ -47,9 +47,11 @@ public class PageService extends BaseService {
     /**
      * 查询项目一览
      */
-    public List<BaseMongoMap> findPageList(int page, int limit, long projId) {
+    public List<BaseMongoMap> findPageList(int page, int limit, Long projId) {
         Query queryObj = new Query();
-        queryObj.addCriteria(where("projId").is(projId));
+        if (projId != null) {
+            queryObj.addCriteria(where("projId").is(projId));
+        }
         queryObj.addCriteria(where("deleteFlg").is(false));
 
         if (limit > 0) {

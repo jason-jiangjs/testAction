@@ -69,7 +69,16 @@ public class TestItemService extends BaseService {
     /**
      * 保存项目
      */
-    public void saveTestItem(Long itemId, Map<String, Object> params) {
-        itemDao.updateObject(itemId, params, false);
+    public void saveTestItem(Long userId, Long itemId, Map<String, Object> params) {
+        if (itemId == null || itemId == 0) {
+            itemId = sequenceService.getNextSequence(ComSequenceService.ComSequenceName.FX_ITEM_ID);
+            params.put("_id", itemId);
+            params.put("creator", userId);
+            params.put("createdTime", DateTimeUtil.getNowTime());
+        } else {
+            params.put("modifier", userId);
+            params.put("modifiedTime", DateTimeUtil.getNowTime());
+        }
+        itemDao.updateObject(itemId, params, true);
     }
 }
